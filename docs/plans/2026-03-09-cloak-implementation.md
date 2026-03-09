@@ -9,6 +9,7 @@
 **Tech Stack:** electron-vite, Electron 40.8.0, React 19, TypeScript, Tailwind CSS v4, shadcn/ui (Radix UI), Zustand, react-markdown + Shiki, React Virtuoso, electron-store v9, electron-builder
 
 **Key Design Decisions:**
+
 - CLI communication uses `child_process.spawn` with `--print --output-format stream-json --input-format stream-json`
 - Session data reads Claude Code's native JSONL files at `~/.claude/projects/`
 - Permission handling via stdin JSON write-back
@@ -16,6 +17,7 @@
 - MVP ships without macOS code signing
 
 **Reference Docs:**
+
 - Design: `docs/plans/2026-03-09-cloak-design.md`
 - PRD: `Cloak-PRD-v1.0.md`
 
@@ -30,6 +32,7 @@
 ### Task 1: Initialize electron-vite Project
 
 **Files:**
+
 - Create: entire project scaffold
 - Modify: `package.json`
 - Modify: `electron.vite.config.ts`
@@ -72,6 +75,7 @@ git commit -m "feat(m0): initialize electron-vite project with React + TypeScrip
 ### Task 2: Configure Tailwind CSS v4 + shadcn/ui
 
 **Files:**
+
 - Create: `src/renderer/styles/globals.css`
 - Modify: `electron.vite.config.ts`
 - Create: `components.json`
@@ -85,6 +89,7 @@ pnpm add -D tailwindcss @tailwindcss/vite
 **Step 2: Configure Vite plugin**
 
 Add `@tailwindcss/vite` to `electron.vite.config.ts` renderer plugins:
+
 ```typescript
 import tailwindcss from '@tailwindcss/vite'
 
@@ -100,21 +105,24 @@ export default defineConfig({
 **Step 3: Create global CSS with Tailwind v4 @theme**
 
 Create `src/renderer/styles/globals.css`:
+
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-pampas: #F4F3EE;
-  --color-terracotta: #C15F3C;
-  --color-terracotta-dark: #AE5630;
-  --color-cloudy: #B1ADA1;
+  --color-pampas: #f4f3ee;
+  --color-terracotta: #c15f3c;
+  --color-terracotta-dark: #ae5630;
+  --color-cloudy: #b1ada1;
   --font-serif: Georgia, serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 }
 ```
 
 Import in renderer entry:
+
 ```typescript
 import './styles/globals.css'
 ```
@@ -148,6 +156,7 @@ git commit -m "feat(m0): configure Tailwind CSS v4 and shadcn/ui"
 ### Task 3: Create Project Directory Structure + Shared Types
 
 **Files:**
+
 - Create: `src/shared/types.ts`
 - Create: directory structure under `src/main/`, `src/renderer/`, `src/preload/`
 
@@ -169,7 +178,12 @@ export interface ChatMessage {
 
 export type ContentBlock =
   | { type: 'text'; content: string }
-  | { type: 'tool_use'; toolId: string; name: string; input: Record<string, unknown> }
+  | {
+      type: 'tool_use'
+      toolId: string
+      name: string
+      input: Record<string, unknown>
+    }
   | { type: 'tool_result'; toolId: string; output: string; error?: string }
   | { type: 'thinking'; content: string }
 
@@ -214,7 +228,10 @@ export interface AppConfig {
   lastProjectId: string
   shortcuts: Record<string, string>
   reduceMotion: boolean
-  projects: Record<string, { name: string; autoAccept: boolean; claudeArgs: string[] }>
+  projects: Record<
+    string,
+    { name: string; autoAccept: boolean; claudeArgs: string[] }
+  >
 }
 
 // === IPC Channel Names ===
@@ -328,7 +345,11 @@ interface ElectronAPI {
     set: (key: string, value: unknown) => Promise<void>
   }
   app: {
-    checkCli: () => Promise<{ installed: boolean; version: string | null; authenticated: boolean }>
+    checkCli: () => Promise<{
+      installed: boolean
+      version: string | null
+      authenticated: boolean
+    }>
     getAuthStatus: () => Promise<unknown>
   }
 }
@@ -379,6 +400,7 @@ git tag m0-complete
 ### Task 4: Implement Config Store
 
 **Files:**
+
 - Modify: `src/main/services/config-store.ts`
 - Create: `src/main/__tests__/config-store.test.ts`
 
@@ -447,7 +469,10 @@ let store: Store<AppConfig> | null = null
 
 export function getStore(): Store<AppConfig> {
   if (!store) {
-    store = new Store<AppConfig>({ name: 'config', defaults: getConfigDefaults() })
+    store = new Store<AppConfig>({
+      name: 'config',
+      defaults: getConfigDefaults(),
+    })
   }
   return store
 }
@@ -473,6 +498,7 @@ git commit -m "feat(m1): implement config store with electron-store v9"
 ### Task 5: Implement AuthChecker
 
 **Files:**
+
 - Modify: `src/main/services/auth-checker.ts`
 - Create: `src/main/__tests__/auth-checker.test.ts`
 
@@ -481,12 +507,17 @@ git commit -m "feat(m1): implement config store with electron-store v9"
 ```typescript
 // src/main/__tests__/auth-checker.test.ts
 import { describe, it, expect } from 'vitest'
-import { parseVersionOutput, parseAuthStatusJson } from '../services/auth-checker'
+import {
+  parseVersionOutput,
+  parseAuthStatusJson,
+} from '../services/auth-checker'
 
 describe('AuthChecker parsing', () => {
   it('parses claude version output', () => {
-    expect(parseVersionOutput('1.0.40 (Claude Code)\n'))
-      .toEqual({ installed: true, version: '1.0.40' })
+    expect(parseVersionOutput('1.0.40 (Claude Code)\n')).toEqual({
+      installed: true,
+      version: '1.0.40',
+    })
   })
 
   it('detects missing CLI', () => {
@@ -494,17 +525,27 @@ describe('AuthChecker parsing', () => {
   })
 
   it('parses auth status JSON (authenticated)', () => {
-    const json = '{"email":"user@example.com","plan":"pro","tokenExpiresAt":1748658860401,"authenticated":true}'
-    expect(parseAuthStatusJson(json)).toEqual({ authenticated: true, email: 'user@example.com' })
+    const json =
+      '{"email":"user@example.com","plan":"pro","tokenExpiresAt":1748658860401,"authenticated":true}'
+    expect(parseAuthStatusJson(json)).toEqual({
+      authenticated: true,
+      email: 'user@example.com',
+    })
   })
 
   it('parses auth status JSON (unauthenticated)', () => {
     const json = '{"authenticated":false}'
-    expect(parseAuthStatusJson(json)).toEqual({ authenticated: false, email: null })
+    expect(parseAuthStatusJson(json)).toEqual({
+      authenticated: false,
+      email: null,
+    })
   })
 
   it('handles malformed auth output', () => {
-    expect(parseAuthStatusJson('garbage')).toEqual({ authenticated: false, email: null })
+    expect(parseAuthStatusJson('garbage')).toEqual({
+      authenticated: false,
+      email: null,
+    })
   })
 })
 ```
@@ -539,7 +580,9 @@ export function parseVersionOutput(stdout: string): CliStatus {
   const trimmed = stdout.trim()
   if (!trimmed) return { installed: false, version: null }
   const match = trimmed.match(/^([\d.]+)/)
-  return match ? { installed: true, version: match[1] } : { installed: false, version: null }
+  return match
+    ? { installed: true, version: match[1] }
+    : { installed: false, version: null }
 }
 
 export function parseAuthStatusJson(stdout: string): AuthStatus {
@@ -595,6 +638,7 @@ git commit -m "feat(m1): implement AuthChecker with version and auth status pars
 ### Task 6: Implement JSONL Parser
 
 **Files:**
+
 - Modify: `src/main/parsers/jsonl-parser.ts`
 - Create: `src/main/__tests__/jsonl-parser.test.ts`
 
@@ -603,13 +647,22 @@ git commit -m "feat(m1): implement AuthChecker with version and auth status pars
 ```typescript
 // src/main/__tests__/jsonl-parser.test.ts
 import { describe, it, expect } from 'vitest'
-import { parseJsonlLine, extractSessionMeta, extractChatMessages } from '../parsers/jsonl-parser'
+import {
+  parseJsonlLine,
+  extractSessionMeta,
+  extractChatMessages,
+} from '../parsers/jsonl-parser'
 
 describe('JSONL Parser', () => {
   it('parses assistant text event', () => {
     const line = JSON.stringify({
-      type: 'assistant', uuid: 'a1', timestamp: '2026-03-09T10:00:00Z',
-      message: { role: 'assistant', content: [{ type: 'text', text: 'Hello' }] },
+      type: 'assistant',
+      uuid: 'a1',
+      timestamp: '2026-03-09T10:00:00Z',
+      message: {
+        role: 'assistant',
+        content: [{ type: 'text', text: 'Hello' }],
+      },
     })
     const event = parseJsonlLine(line)
     expect(event).not.toBeNull()
@@ -618,40 +671,93 @@ describe('JSONL Parser', () => {
 
   it('parses tool_use nested in assistant', () => {
     const line = JSON.stringify({
-      type: 'assistant', uuid: 'a2', timestamp: '2026-03-09T10:01:00Z',
-      message: { role: 'assistant', content: [{
-        type: 'tool_use', id: 'tool-1', name: 'Read', input: { file_path: '/tmp/test.txt' },
-      }] },
+      type: 'assistant',
+      uuid: 'a2',
+      timestamp: '2026-03-09T10:01:00Z',
+      message: {
+        role: 'assistant',
+        content: [
+          {
+            type: 'tool_use',
+            id: 'tool-1',
+            name: 'Read',
+            input: { file_path: '/tmp/test.txt' },
+          },
+        ],
+      },
     })
     const event = parseJsonlLine(line)
     expect(event).not.toBeNull()
   })
 
   it('returns null for non-renderable types', () => {
-    expect(parseJsonlLine(JSON.stringify({ type: 'progress', data: {} }))).toBeNull()
-    expect(parseJsonlLine(JSON.stringify({ type: 'file-history-snapshot' }))).toBeNull()
+    expect(
+      parseJsonlLine(JSON.stringify({ type: 'progress', data: {} })),
+    ).toBeNull()
+    expect(
+      parseJsonlLine(JSON.stringify({ type: 'file-history-snapshot' })),
+    ).toBeNull()
     expect(parseJsonlLine(JSON.stringify({ type: 'system' }))).toBeNull()
   })
 
   it('extracts session title from custom-title record', () => {
     const lines = [
-      JSON.stringify({ type: 'user', uuid: '1', timestamp: '2026-03-09T10:00:00Z', message: { role: 'user', content: [{ type: 'text', text: 'First message that is long enough' }] } }),
-      JSON.stringify({ type: 'custom-title', customTitle: 'My Title', sessionId: 's1' }),
+      JSON.stringify({
+        type: 'user',
+        uuid: '1',
+        timestamp: '2026-03-09T10:00:00Z',
+        message: {
+          role: 'user',
+          content: [
+            { type: 'text', text: 'First message that is long enough' },
+          ],
+        },
+      }),
+      JSON.stringify({
+        type: 'custom-title',
+        customTitle: 'My Title',
+        sessionId: 's1',
+      }),
     ]
     expect(extractSessionMeta(lines, 's1', '/proj').title).toBe('My Title')
   })
 
   it('falls back to first user message (truncated to 30 chars)', () => {
     const lines = [
-      JSON.stringify({ type: 'user', uuid: '1', timestamp: '2026-03-09T10:00:00Z', message: { role: 'user', content: [{ type: 'text', text: 'This is a very long message that should be truncated at thirty chars' }] } }),
+      JSON.stringify({
+        type: 'user',
+        uuid: '1',
+        timestamp: '2026-03-09T10:00:00Z',
+        message: {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: 'This is a very long message that should be truncated at thirty chars',
+            },
+          ],
+        },
+      }),
     ]
-    expect(extractSessionMeta(lines, 's2', '/proj').title.length).toBeLessThanOrEqual(30)
+    expect(
+      extractSessionMeta(lines, 's2', '/proj').title.length,
+    ).toBeLessThanOrEqual(30)
   })
 
   it('converts JSONL lines to ChatMessage array', () => {
     const lines = [
-      JSON.stringify({ type: 'user', uuid: 'u1', timestamp: '2026-03-09T10:00:00Z', message: { role: 'user', content: [{ type: 'text', text: 'Hello' }] } }),
-      JSON.stringify({ type: 'assistant', uuid: 'a1', timestamp: '2026-03-09T10:00:01Z', message: { role: 'assistant', content: [{ type: 'text', text: 'Hi' }] } }),
+      JSON.stringify({
+        type: 'user',
+        uuid: 'u1',
+        timestamp: '2026-03-09T10:00:00Z',
+        message: { role: 'user', content: [{ type: 'text', text: 'Hello' }] },
+      }),
+      JSON.stringify({
+        type: 'assistant',
+        uuid: 'a1',
+        timestamp: '2026-03-09T10:00:01Z',
+        message: { role: 'assistant', content: [{ type: 'text', text: 'Hi' }] },
+      }),
       JSON.stringify({ type: 'progress', data: {} }),
       JSON.stringify({ type: 'result', duration: 1200 }),
     ]
@@ -683,8 +789,13 @@ interface RawEvent {
   message?: {
     role: string
     content: Array<{
-      type: string; text?: string; id?: string; name?: string
-      input?: Record<string, unknown>; content?: unknown; tool_use_id?: string
+      type: string
+      text?: string
+      id?: string
+      name?: string
+      input?: Record<string, unknown>
+      content?: unknown
+      tool_use_id?: string
     }>
   }
   customTitle?: string
@@ -698,7 +809,8 @@ const RENDERABLE_TYPES = new Set(['user', 'assistant'])
 export function parseJsonlLine(line: string): RawEvent | null {
   try {
     const parsed: RawEvent = JSON.parse(line)
-    if (!RENDERABLE_TYPES.has(parsed.type) && parsed.type !== 'custom-title') return null
+    if (!RENDERABLE_TYPES.has(parsed.type) && parsed.type !== 'custom-title')
+      return null
     return parsed
   } catch {
     return null
@@ -713,9 +825,21 @@ function toContentBlocks(message: RawEvent['message']): ContentBlock[] {
         case 'text':
           return { type: 'text', content: block.text ?? '' }
         case 'tool_use':
-          return { type: 'tool_use', toolId: block.id ?? '', name: block.name ?? '', input: block.input ?? {} }
+          return {
+            type: 'tool_use',
+            toolId: block.id ?? '',
+            name: block.name ?? '',
+            input: block.input ?? {},
+          }
         case 'tool_result':
-          return { type: 'tool_result', toolId: block.tool_use_id ?? block.id ?? '', output: typeof block.content === 'string' ? block.content : JSON.stringify(block.content ?? '') }
+          return {
+            type: 'tool_result',
+            toolId: block.tool_use_id ?? block.id ?? '',
+            output:
+              typeof block.content === 'string'
+                ? block.content
+                : JSON.stringify(block.content ?? ''),
+          }
         case 'thinking':
           return { type: 'thinking', content: block.text ?? '' }
         default:
@@ -725,7 +849,11 @@ function toContentBlocks(message: RawEvent['message']): ContentBlock[] {
     .filter((b): b is ContentBlock => b !== null)
 }
 
-export function extractSessionMeta(lines: string[], sessionId: string, projectPath: string): SessionMeta {
+export function extractSessionMeta(
+  lines: string[],
+  sessionId: string,
+  projectPath: string,
+): SessionMeta {
   let title = ''
   let firstUserMsg = ''
   let lastTimestamp = ''
@@ -734,24 +862,37 @@ export function extractSessionMeta(lines: string[], sessionId: string, projectPa
   for (const line of lines) {
     try {
       const parsed: RawEvent = JSON.parse(line)
-      if (parsed.type === 'custom-title' && parsed.customTitle) title = parsed.customTitle
+      if (parsed.type === 'custom-title' && parsed.customTitle)
+        title = parsed.customTitle
       if (parsed.type === 'user' && !firstUserMsg) {
-        const text = parsed.message?.content?.find((b) => b.type === 'text')?.text
+        const text = parsed.message?.content?.find(b => b.type === 'text')?.text
         if (text) firstUserMsg = text.slice(0, 30)
       }
       if (parsed.timestamp) lastTimestamp = parsed.timestamp
       if (parsed.type === 'user' || parsed.type === 'assistant') messageCount++
-    } catch { /* skip malformed */ }
+    } catch {
+      /* skip malformed */
+    }
   }
 
-  return { id: sessionId, title: title || firstUserMsg || 'Untitled', projectPath, lastActive: lastTimestamp, messageCount }
+  return {
+    id: sessionId,
+    title: title || firstUserMsg || 'Untitled',
+    projectPath,
+    lastActive: lastTimestamp,
+    messageCount,
+  }
 }
 
 export function extractChatMessages(lines: string[]): ChatMessage[] {
   const messages: ChatMessage[] = []
   for (const line of lines) {
     const event = parseJsonlLine(line)
-    if (!event?.message || (event.type !== 'user' && event.type !== 'assistant')) continue
+    if (
+      !event?.message ||
+      (event.type !== 'user' && event.type !== 'assistant')
+    )
+      continue
     const blocks = toContentBlocks(event.message)
     if (blocks.length === 0) continue
     messages.push({
@@ -785,6 +926,7 @@ git commit -m "feat(m1): implement JSONL parser for session files and stream eve
 ### Task 7: Implement ClaudeService
 
 **Files:**
+
 - Modify: `src/main/services/claude-service.ts`
 - Create: `src/main/__tests__/claude-service.test.ts`
 
@@ -826,7 +968,11 @@ describe('ClaudeService utilities', () => {
   })
 
   it('builds correct args for resumed session', () => {
-    const args = buildClaudeArgs({ sessionId: 'sess-123', cwd: '/project', extraArgs: [] })
+    const args = buildClaudeArgs({
+      sessionId: 'sess-123',
+      cwd: '/project',
+      extraArgs: [],
+    })
     expect(args).toContain('--resume')
     expect(args).toContain('sess-123')
   })
@@ -854,10 +1000,20 @@ import { createInterface } from 'node:readline'
 import type { RiskLevel } from '../../shared/types'
 import { getStore } from './config-store'
 
-const LOW_RISK = new Set(['Read', 'Glob', 'Grep', 'WebSearch', 'WebFetch', 'LS'])
+const LOW_RISK = new Set([
+  'Read',
+  'Glob',
+  'Grep',
+  'WebSearch',
+  'WebFetch',
+  'LS',
+])
 const MEDIUM_RISK = new Set(['Write', 'Edit', 'NotebookEdit'])
 
-export function inferRiskLevel(toolName: string, input: Record<string, unknown>): RiskLevel {
+export function inferRiskLevel(
+  toolName: string,
+  input: Record<string, unknown>,
+): RiskLevel {
   if (LOW_RISK.has(toolName)) return 'low'
   if (MEDIUM_RISK.has(toolName)) return 'medium'
   return 'high'
@@ -871,9 +1027,19 @@ interface BuildArgsOptions {
 }
 
 export function buildClaudeArgs(opts: BuildArgsOptions): string[] {
-  const args = ['--print', '--output-format', 'stream-json', '--input-format', 'stream-json']
+  const args = [
+    '--print',
+    '--output-format',
+    'stream-json',
+    '--input-format',
+    'stream-json',
+  ]
   if (opts.sessionId) args.push('--resume', opts.sessionId)
-  if (opts.autoAccept) args.push('--allowedTools', 'Bash,Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,LS,NotebookEdit')
+  if (opts.autoAccept)
+    args.push(
+      '--allowedTools',
+      'Bash,Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,LS,NotebookEdit',
+    )
   args.push(...opts.extraArgs)
   return args
 }
@@ -885,43 +1051,69 @@ export class ClaudeService extends EventEmitter {
     return getStore().get('claudeBinaryPath') || 'claude'
   }
 
-  async sendMessage(sessionId: string, message: string, cwd: string): Promise<void> {
+  async sendMessage(
+    sessionId: string,
+    message: string,
+    cwd: string,
+  ): Promise<void> {
     const existing = this.processes.get(sessionId)
     if (existing && !existing.killed) {
-      existing.stdin?.write(JSON.stringify({ type: 'user', message: { role: 'user', content: [{ type: 'text', text: message }] } }) + '\n')
+      existing.stdin?.write(
+        JSON.stringify({
+          type: 'user',
+          message: { role: 'user', content: [{ type: 'text', text: message }] },
+        }) + '\n',
+      )
       return
     }
 
     const store = getStore()
     const globalArgs = store.get('globalClaudeArgs') || []
     const projectConfig = store.get('projects')[cwd]
-    const autoAccept = projectConfig?.autoAccept ?? store.get('globalAutoAccept')
+    const autoAccept =
+      projectConfig?.autoAccept ?? store.get('globalAutoAccept')
 
-    const args = buildClaudeArgs({ sessionId, cwd, extraArgs: globalArgs, autoAccept })
-    const proc = spawn(this.getClaudePath(), args, { cwd, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env } })
+    const args = buildClaudeArgs({
+      sessionId,
+      cwd,
+      extraArgs: globalArgs,
+      autoAccept,
+    })
+    const proc = spawn(this.getClaudePath(), args, {
+      cwd,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env },
+    })
     this.processes.set(sessionId, proc)
 
     if (proc.stdout) {
       const rl = createInterface({ input: proc.stdout })
-      rl.on('line', (line) => {
+      rl.on('line', line => {
         try {
           const event = JSON.parse(line)
           this.emit('stream-event', { sessionId, event })
-        } catch { /* skip non-JSON */ }
+        } catch {
+          /* skip non-JSON */
+        }
       })
     }
 
     if (proc.stderr) {
       const rl = createInterface({ input: proc.stderr })
-      rl.on('line', (line) => this.emit('error', { sessionId, error: line }))
+      rl.on('line', line => this.emit('error', { sessionId, error: line }))
     }
 
-    proc.on('exit', (code) => {
+    proc.on('exit', code => {
       this.processes.delete(sessionId)
       this.emit('exit', { sessionId, code })
     })
 
-    proc.stdin?.write(JSON.stringify({ type: 'user', message: { role: 'user', content: [{ type: 'text', text: message }] } }) + '\n')
+    proc.stdin?.write(
+      JSON.stringify({
+        type: 'user',
+        message: { role: 'user', content: [{ type: 'text', text: message }] },
+      }) + '\n',
+    )
   }
 
   abort(sessionId: string): void {
@@ -929,10 +1121,17 @@ export class ClaudeService extends EventEmitter {
     if (proc && !proc.killed) proc.kill('SIGINT')
   }
 
-  confirmPermission(sessionId: string, toolUseId: string, allow: boolean): void {
+  confirmPermission(
+    sessionId: string,
+    toolUseId: string,
+    allow: boolean,
+  ): void {
     const proc = this.processes.get(sessionId)
     if (proc && !proc.killed) {
-      proc.stdin?.write(JSON.stringify({ type: 'permission_response', toolUseId, allow }) + '\n')
+      proc.stdin?.write(
+        JSON.stringify({ type: 'permission_response', toolUseId, allow }) +
+          '\n',
+      )
     }
   }
 
@@ -968,6 +1167,7 @@ git commit -m "feat(m1): implement ClaudeService with stream-json child process 
 ### Task 8: Implement IPC Bridge (Preload + Handlers)
 
 **Files:**
+
 - Modify: `src/preload/index.ts`
 - Modify: `src/main/ipc/handlers.ts`
 - Modify: `src/main/index.ts`
@@ -981,34 +1181,44 @@ import { IPC } from '../shared/types'
 
 const api = {
   claude: {
-    sendMessage: (sessionId: string, text: string) => ipcRenderer.invoke(IPC.CLAUDE_SEND, sessionId, text),
+    sendMessage: (sessionId: string, text: string) =>
+      ipcRenderer.invoke(IPC.CLAUDE_SEND, sessionId, text),
     onStreamEvent: (cb: (event: unknown) => void) => {
       const handler = (_: unknown, data: unknown) => cb(data)
       ipcRenderer.on(IPC.CLAUDE_STREAM, handler)
       return () => ipcRenderer.removeListener(IPC.CLAUDE_STREAM, handler)
     },
-    abort: (sessionId: string) => ipcRenderer.invoke(IPC.CLAUDE_ABORT, sessionId),
+    abort: (sessionId: string) =>
+      ipcRenderer.invoke(IPC.CLAUDE_ABORT, sessionId),
     onPermissionRequest: (cb: (req: unknown) => void) => {
       const handler = (_: unknown, data: unknown) => cb(data)
       ipcRenderer.on(IPC.CLAUDE_PERMISSION_REQUEST, handler)
-      return () => ipcRenderer.removeListener(IPC.CLAUDE_PERMISSION_REQUEST, handler)
+      return () =>
+        ipcRenderer.removeListener(IPC.CLAUDE_PERMISSION_REQUEST, handler)
     },
-    confirmPermission: (toolUseId: string, allow: boolean) => ipcRenderer.invoke(IPC.CLAUDE_CONFIRM, toolUseId, allow),
+    confirmPermission: (toolUseId: string, allow: boolean) =>
+      ipcRenderer.invoke(IPC.CLAUDE_CONFIRM, toolUseId, allow),
   },
   session: {
-    list: (projectPath: string) => ipcRenderer.invoke(IPC.SESSION_LIST, projectPath),
-    load: (sessionId: string) => ipcRenderer.invoke(IPC.SESSION_LOAD, sessionId),
-    create: (projectPath: string) => ipcRenderer.invoke(IPC.SESSION_CREATE, projectPath),
-    delete: (sessionId: string) => ipcRenderer.invoke(IPC.SESSION_DELETE, sessionId),
+    list: (projectPath: string) =>
+      ipcRenderer.invoke(IPC.SESSION_LIST, projectPath),
+    load: (sessionId: string) =>
+      ipcRenderer.invoke(IPC.SESSION_LOAD, sessionId),
+    create: (projectPath: string) =>
+      ipcRenderer.invoke(IPC.SESSION_CREATE, projectPath),
+    delete: (sessionId: string) =>
+      ipcRenderer.invoke(IPC.SESSION_DELETE, sessionId),
   },
   project: {
     list: () => ipcRenderer.invoke(IPC.PROJECT_LIST),
     add: (path: string) => ipcRenderer.invoke(IPC.PROJECT_ADD, path),
-    getClaudeMd: (path: string) => ipcRenderer.invoke(IPC.PROJECT_CLAUDE_MD, path),
+    getClaudeMd: (path: string) =>
+      ipcRenderer.invoke(IPC.PROJECT_CLAUDE_MD, path),
   },
   config: {
     get: (key: string) => ipcRenderer.invoke(IPC.CONFIG_GET, key),
-    set: (key: string, value: unknown) => ipcRenderer.invoke(IPC.CONFIG_SET, key, value),
+    set: (key: string, value: unknown) =>
+      ipcRenderer.invoke(IPC.CONFIG_SET, key, value),
   },
   app: {
     checkCli: () => ipcRenderer.invoke(IPC.APP_CHECK_CLI),
@@ -1038,23 +1248,35 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
 
   ipcMain.handle(IPC.APP_AUTH_STATUS, async () => checkAuth())
 
-  ipcMain.handle(IPC.CLAUDE_SEND, async (_e, sessionId: string, text: string) => {
-    const store = getStore()
-    const cwd = store.get('lastProjectId') || process.cwd()
-    await claudeService.sendMessage(sessionId, text, cwd)
-  })
+  ipcMain.handle(
+    IPC.CLAUDE_SEND,
+    async (_e, sessionId: string, text: string) => {
+      const store = getStore()
+      const cwd = store.get('lastProjectId') || process.cwd()
+      await claudeService.sendMessage(sessionId, text, cwd)
+    },
+  )
 
-  ipcMain.handle(IPC.CLAUDE_ABORT, (_e, sessionId: string) => claudeService.abort(sessionId))
+  ipcMain.handle(IPC.CLAUDE_ABORT, (_e, sessionId: string) =>
+    claudeService.abort(sessionId),
+  )
 
-  ipcMain.handle(IPC.CLAUDE_CONFIRM, (_e, toolUseId: string, allow: boolean) => {
-    // Need sessionId context — will be refined in M2
-  })
+  ipcMain.handle(
+    IPC.CLAUDE_CONFIRM,
+    (_e, toolUseId: string, allow: boolean) => {
+      // Need sessionId context — will be refined in M2
+    },
+  )
 
-  ipcMain.handle(IPC.CONFIG_GET, (_e, key: string) => getStore().get(key as never))
-  ipcMain.handle(IPC.CONFIG_SET, (_e, key: string, value: unknown) => getStore().set(key as never, value as never))
+  ipcMain.handle(IPC.CONFIG_GET, (_e, key: string) =>
+    getStore().get(key as never),
+  )
+  ipcMain.handle(IPC.CONFIG_SET, (_e, key: string, value: unknown) =>
+    getStore().set(key as never, value as never),
+  )
 
   // Forward stream events to all renderer windows
-  claudeService.on('stream-event', (data) => {
+  claudeService.on('stream-event', data => {
     for (const win of BrowserWindow.getAllWindows()) {
       win.webContents.send(IPC.CLAUDE_STREAM, data)
     }
@@ -1065,6 +1287,7 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
 **Step 3: Wire up main/index.ts**
 
 Update `src/main/index.ts` to:
+
 - Create BrowserWindow with `{ minWidth: 800, minHeight: 600, webPreferences: { preload, contextIsolation: true, nodeIntegration: false } }`
 - Restore window bounds from config store
 - Instantiate ClaudeService
@@ -1091,6 +1314,7 @@ git commit -m "feat(m1): implement IPC bridge with contextBridge and handlers"
 ### Task 9: Validate stream-json Communication (E2E)
 
 **Files:**
+
 - Create: `scripts/test-stream-json.ts`
 - Create: `scripts/test-stream-json-input.ts`
 
@@ -1102,20 +1326,26 @@ git commit -m "feat(m1): implement IPC bridge with contextBridge and handlers"
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
 
-const proc = spawn('claude', ['--print', '--output-format', 'stream-json', '-p', 'Say hello in one word'], {
-  stdio: ['pipe', 'pipe', 'pipe'],
-})
+const proc = spawn(
+  'claude',
+  ['--print', '--output-format', 'stream-json', '-p', 'Say hello in one word'],
+  {
+    stdio: ['pipe', 'pipe', 'pipe'],
+  },
+)
 
 const rl = createInterface({ input: proc.stdout! })
-rl.on('line', (line) => {
+rl.on('line', line => {
   try {
     const parsed = JSON.parse(line)
     console.log(`[${parsed.type}]`, JSON.stringify(parsed).slice(0, 200))
-  } catch { console.log('[raw]', line) }
+  } catch {
+    console.log('[raw]', line)
+  }
 })
 
-proc.stderr?.on('data', (d) => console.error('[stderr]', d.toString()))
-proc.on('exit', (code) => console.log('[exit]', code))
+proc.stderr?.on('data', d => console.error('[stderr]', d.toString()))
+proc.on('exit', code => console.log('[exit]', code))
 ```
 
 **Step 2: Run and verify output**
@@ -1133,23 +1363,41 @@ Expected: See `[assistant]` events with text, then process exit 0.
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
 
-const proc = spawn('claude', ['--print', '--output-format', 'stream-json', '--input-format', 'stream-json'], {
-  stdio: ['pipe', 'pipe', 'pipe'],
-})
+const proc = spawn(
+  'claude',
+  [
+    '--print',
+    '--output-format',
+    'stream-json',
+    '--input-format',
+    'stream-json',
+  ],
+  {
+    stdio: ['pipe', 'pipe', 'pipe'],
+  },
+)
 
 const rl = createInterface({ input: proc.stdout! })
-rl.on('line', (line) => {
+rl.on('line', line => {
   try {
     const parsed = JSON.parse(line)
     console.log(`[${parsed.type}]`, JSON.stringify(parsed).slice(0, 300))
-  } catch { console.log('[raw]', line) }
+  } catch {
+    console.log('[raw]', line)
+  }
 })
 
-proc.stderr?.on('data', (d) => console.error('[stderr]', d.toString()))
-proc.on('exit', (code) => console.log('[exit]', code))
+proc.stderr?.on('data', d => console.error('[stderr]', d.toString()))
+proc.on('exit', code => console.log('[exit]', code))
 
 setTimeout(() => {
-  const msg = JSON.stringify({ type: 'user', message: { role: 'user', content: [{ type: 'text', text: 'Say hello in one word' }] } })
+  const msg = JSON.stringify({
+    type: 'user',
+    message: {
+      role: 'user',
+      content: [{ type: 'text', text: 'Say hello in one word' }],
+    },
+  })
   console.log('[sending]', msg)
   proc.stdin?.write(msg + '\n')
 }, 1000)
@@ -1179,6 +1427,7 @@ git commit -m "feat(m1): validate stream-json communication with integration tes
 ### Task 10: M1 Wrap-up — App Shell with CLI Status
 
 **Files:**
+
 - Modify: `src/renderer/App.tsx`
 - Modify: `src/main/index.ts`
 
@@ -1193,9 +1442,10 @@ export default function App() {
   const [status, setStatus] = useState('Checking...')
 
   useEffect(() => {
-    window.electronAPI.app.checkCli().then((s) => {
+    window.electronAPI.app.checkCli().then(s => {
       if (!s.installed) setStatus('Claude Code not installed')
-      else if (!s.authenticated) setStatus(`Claude Code v${s.version} — Not authenticated`)
+      else if (!s.authenticated)
+        setStatus(`Claude Code v${s.version} — Not authenticated`)
       else setStatus(`Claude Code v${s.version} — Ready`)
     })
   }, [])
@@ -1205,7 +1455,9 @@ export default function App() {
       <div className="text-center space-y-4">
         <h1 className="text-3xl font-serif text-gray-800">Cloak</h1>
         <p className="text-cloudy">{status}</p>
-        <Button className="bg-terracotta hover:bg-terracotta-dark text-white">Get Started</Button>
+        <Button className="bg-terracotta hover:bg-terracotta-dark text-white">
+          Get Started
+        </Button>
       </div>
     </div>
   )
@@ -1251,6 +1503,7 @@ git tag m1-complete
 ### Task 11: Implement Zustand Stores
 
 **Files:**
+
 - Modify: `src/renderer/stores/chat-store.ts`
 - Modify: `src/renderer/stores/session-store.ts`
 - Modify: `src/renderer/stores/project-store.ts`
@@ -1272,6 +1525,7 @@ Write unit tests for each store's state transitions.
 ### Task 12: Implement MainLayout + Sidebar Shell
 
 **Files:**
+
 - Modify: `src/renderer/components/layout/MainLayout.tsx`
 - Modify: `src/renderer/components/layout/Sidebar.tsx`
 - Modify: `src/renderer/App.tsx`
@@ -1290,6 +1544,7 @@ Write unit tests for each store's state transitions.
 ### Task 13: Implement InputArea
 
 **Files:**
+
 - Modify: `src/renderer/components/chat/InputArea.tsx`
 
 - Multi-line `<textarea>` with auto-resize (min 2 rows, max 10 rows)
@@ -1306,11 +1561,13 @@ Write unit tests for each store's state transitions.
 ### Task 14: Implement MessageList with React Virtuoso
 
 **Files:**
+
 - Modify: `src/renderer/components/chat/MessageList.tsx`
 - Modify: `src/renderer/components/chat/UserMessage.tsx`
 - Modify: `src/renderer/components/chat/AssistantMessage.tsx`
 
 Install dependency:
+
 ```bash
 pnpm add react-virtuoso
 ```
@@ -1329,9 +1586,11 @@ pnpm add react-virtuoso
 ### Task 15: Implement MarkdownRenderer with Shiki
 
 **Files:**
+
 - Modify: `src/renderer/components/chat/MarkdownRenderer.tsx`
 
 Install dependencies:
+
 ```bash
 pnpm add react-markdown remark-gfm shiki
 ```
@@ -1350,6 +1609,7 @@ pnpm add react-markdown remark-gfm shiki
 ### Task 16: Wire Stream Events to Chat UI
 
 **Files:**
+
 - Modify: `src/renderer/App.tsx` (or a new `src/renderer/hooks/useStreamEvents.ts`)
 - Modify: `src/renderer/stores/chat-store.ts`
 
@@ -1408,6 +1668,7 @@ git tag m2-complete
 ### Task 18: Implement ThinkingBlock
 
 **Files:**
+
 - Modify: `src/renderer/components/chat/ThinkingBlock.tsx`
 
 - Collapsible section for `thinking` content blocks
@@ -1421,6 +1682,7 @@ git tag m2-complete
 ### Task 19: Implement ToolCard
 
 **Files:**
+
 - Modify: `src/renderer/components/chat/ToolCard.tsx`
 
 Install: `pnpm add lucide-react`
@@ -1437,6 +1699,7 @@ Install: `pnpm add lucide-react`
 ### Task 20: Implement PermissionBar
 
 **Files:**
+
 - Modify: `src/renderer/components/chat/PermissionBar.tsx`
 
 - Fixed bottom bar, appears when `useChatStore.pendingPermission` is set
@@ -1452,6 +1715,7 @@ Install: `pnpm add lucide-react`
 ### Task 21: Implement DiffView
 
 **Files:**
+
 - Modify: `src/renderer/components/chat/DiffView.tsx`
 
 Install: `pnpm add react-diff-viewer-continued`
@@ -1468,6 +1732,7 @@ Install: `pnpm add react-diff-viewer-continued`
 ### Task 22: Implement Auto-Accept Mode
 
 **Files:**
+
 - Modify: `src/renderer/components/chat/InputArea.tsx` (add AutoAcceptBanner above)
 - Modify: `src/renderer/stores/settings-store.ts`
 - Modify: `src/main/services/claude-service.ts`
@@ -1522,6 +1787,7 @@ git tag m3-complete
 ### Task 24: Implement SessionManager (Main Process)
 
 **Files:**
+
 - Modify: `src/main/services/session-manager.ts`
 - Create: `src/main/__tests__/session-manager.test.ts`
 
@@ -1540,6 +1806,7 @@ Write tests for path encoding and metadata extraction.
 ### Task 25: Implement ProjectManager (Main Process)
 
 **Files:**
+
 - Modify: `src/main/services/project-manager.ts`
 
 - Project registry stored in electron-store `projects` field
@@ -1556,6 +1823,7 @@ Write tests for path encoding and metadata extraction.
 ### Task 26: Implement Sidebar with SessionList
 
 **Files:**
+
 - Modify: `src/renderer/components/layout/Sidebar.tsx`
 
 - ProjectSelector at top (dropdown with search, "Add Project" button using `dialog.showOpenDialog`)
@@ -1573,6 +1841,7 @@ Write tests for path encoding and metadata extraction.
 ### Task 27: Implement AuthGate
 
 **Files:**
+
 - Modify: `src/renderer/components/auth/AuthGate.tsx`
 - Modify: `src/renderer/components/auth/InstallGuide.tsx`
 - Modify: `src/renderer/components/auth/LoginGuide.tsx`
@@ -1593,6 +1862,7 @@ Install: `pnpm add @xterm/xterm @xterm/addon-fit node-pty`
 ### Task 28: Implement SettingsOverlay
 
 **Files:**
+
 - Modify: `src/renderer/components/settings/SettingsOverlay.tsx`
 
 - Full-screen overlay (z-50, backdrop blur), triggered by Cmd+, or settings icon
@@ -1653,6 +1923,7 @@ git tag m4-complete
 ### Task 30: Window State Persistence
 
 **Files:**
+
 - Modify: `src/main/index.ts`
 
 - Save window bounds (`x, y, width, height`) to electron-store on `close` and `resize` (debounced 500ms)
@@ -1666,6 +1937,7 @@ git tag m4-complete
 ### Task 31: Dark Theme
 
 **Files:**
+
 - Modify: `src/renderer/styles/globals.css`
 - Modify: components as needed
 
@@ -1682,6 +1954,7 @@ git tag m4-complete
 ### Task 32: Configure electron-builder
 
 **Files:**
+
 - Create/modify: `electron-builder.yml`
 - Modify: `package.json` build scripts
 
@@ -1708,6 +1981,7 @@ dmg:
 ```
 
 Build scripts in `package.json`:
+
 ```json
 {
   "scripts": {
@@ -1726,6 +2000,7 @@ Install: `pnpm add -D electron-builder`
 ### Task 33: Implement UpdateService (Optional)
 
 **Files:**
+
 - Create: `src/main/services/update-service.ts`
 
 Install: `pnpm add electron-updater`

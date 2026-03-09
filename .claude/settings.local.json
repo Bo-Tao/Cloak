@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:npm.100tal.com)",
+      "WebFetch(domain:registry.npmmirror.com)",
+      "WebFetch(domain:cdn.npmmirror.com)",
+      "mcp__deepwiki__ask_question"
     ]
   }
 }

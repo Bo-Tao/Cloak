@@ -2,11 +2,11 @@
 
 **Claude Code Desktop GUI — 详细设计**
 
-| 项目 | 内容 |
-|------|------|
+| 项目     | 内容           |
+| -------- | -------------- |
 | 基于 PRD | Cloak-PRD-v1.0 |
-| 创建日期 | 2026-03-09 |
-| 状态 | Approved |
+| 创建日期 | 2026-03-09     |
+| 状态     | Approved       |
 
 ---
 
@@ -52,7 +52,7 @@
 ### 1.2 技术栈
 
 | 层级 | 技术 | 版本 | 职责 |
-|------|------|------|------|
+| --- | --- | --- | --- |
 | 运行时 | Electron | 40.8.0 (Chromium 144, Node 24) | 桌面容器 |
 | CLI 集成 | child_process.spawn | Node 原生 | 调用 Claude Code CLI |
 | 渲染层 | React + TypeScript | 19.x | UI 渲染 |
@@ -113,11 +113,11 @@ Renderer → IPC → Main Process → stdin 写入确认 JSON → Claude CLI
 
 **权限模式映射：**
 
-| PRD 概念 | CLI 实现 |
-|----------|----------|
-| 默认模式 | stdin 逐次写入确认/拒绝响应 |
+| PRD 概念 | CLI 实现                                                       |
+| -------- | -------------------------------------------------------------- |
+| 默认模式 | stdin 逐次写入确认/拒绝响应                                    |
 | 自动接受 | `--allowedTools "Bash,Read,Edit,Write,Glob,Grep"` — 全部预批准 |
-| 只读模式 | `--permission-mode plan` — 仅允许读操作 |
+| 只读模式 | `--permission-mode plan` — 仅允许读操作                        |
 
 ### 2.4 多会话并发
 
@@ -135,7 +135,7 @@ Renderer → IPC → Main Process → stdin 写入确认 JSON → Claude CLI
 stream-json 输出采用与 Anthropic Messages API 一致的事件流：
 
 | 事件 type | 说明 | UI 渲染 |
-|-----------|------|---------|
+| --- | --- | --- |
 | `message_start` | 消息开始 | 创建新消息卡片，进入 loading 状态 |
 | `content_block_start` | 内容块开始（text / tool_use / thinking） | 初始化对应渲染组件 |
 | `content_block_delta` | 增量内容（text_delta / input_json_delta） | 流式追加文本 / 工具参数 |
@@ -149,7 +149,7 @@ stream-json 输出采用与 Anthropic Messages API 一致的事件流：
 每个会话 JSONL 文件中，每行 JSON 对象的顶层 type 如下：
 
 | 顶层 type | 包含的 content block types | UI 渲染 |
-|---|---|---|
+| --- | --- | --- |
 | `assistant` | `text`, `tool_use`, `thinking` | Markdown 消息卡片 / 工具调用卡片 / 思考区域 |
 | `user` | `tool_result` | 工具执行结果，嵌入工具卡片 |
 | `progress` | `hook_progress` | 状态指示器（轻量展示或忽略） |
@@ -165,16 +165,16 @@ stream-json 输出采用与 Anthropic Messages API 一致的事件流：
 
 ```typescript
 interface BaseEvent {
-  type: string;
-  sessionId: string;           // UUID
-  uuid: string;                // 事件唯一标识
-  timestamp: string;           // ISO-8601
-  cwd: string;
-  version: string;             // CLI 版本
-  parentUuid: string | null;
-  turn?: number;
-  cost?: { inputTokens: number; outputTokens: number; usdCost: number };
-  model?: string;
+  type: string
+  sessionId: string // UUID
+  uuid: string // 事件唯一标识
+  timestamp: string // ISO-8601
+  cwd: string
+  version: string // CLI 版本
+  parentUuid: string | null
+  turn?: number
+  cost?: { inputTokens: number; outputTokens: number; usdCost: number }
+  model?: string
 }
 ```
 
@@ -183,17 +183,20 @@ interface BaseEvent {
 适配器层根据工具名推断风险等级：
 
 ```typescript
-function getRiskLevel(toolName: string, input: Record<string, unknown>): RiskLevel {
-  const LOW = ['Read', 'Glob', 'Grep', 'WebSearch', 'WebFetch'];
-  const MEDIUM = ['Write', 'Edit', 'NotebookEdit'];
+function getRiskLevel(
+  toolName: string,
+  input: Record<string, unknown>,
+): RiskLevel {
+  const LOW = ['Read', 'Glob', 'Grep', 'WebSearch', 'WebFetch']
+  const MEDIUM = ['Write', 'Edit', 'NotebookEdit']
   if (toolName === 'Bash') {
-    const cmd = String(input.command ?? '');
-    if (/\b(rm|delete|drop|kill|force)\b/i.test(cmd)) return 'high';
-    return 'high'; // Bash 默认高风险
+    const cmd = String(input.command ?? '')
+    if (/\b(rm|delete|drop|kill|force)\b/i.test(cmd)) return 'high'
+    return 'high' // Bash 默认高风险
   }
-  if (LOW.includes(toolName)) return 'low';
-  if (MEDIUM.includes(toolName)) return 'medium';
-  return 'high'; // 未知工具默认高风险
+  if (LOW.includes(toolName)) return 'low'
+  if (MEDIUM.includes(toolName)) return 'medium'
+  return 'high' // 未知工具默认高风险
 }
 ```
 
@@ -205,25 +208,30 @@ function getRiskLevel(toolName: string, input: Record<string, unknown>): RiskLev
 
 ```typescript
 interface ChatMessage {
-  id: string;               // uuid
-  role: 'user' | 'assistant';
-  timestamp: string;        // ISO-8601
-  blocks: ContentBlock[];
-  cost?: { inputTokens: number; outputTokens: number; usdCost: number };
-  model?: string;
+  id: string // uuid
+  role: 'user' | 'assistant'
+  timestamp: string // ISO-8601
+  blocks: ContentBlock[]
+  cost?: { inputTokens: number; outputTokens: number; usdCost: number }
+  model?: string
 }
 
 type ContentBlock =
   | { type: 'text'; content: string }
-  | { type: 'tool_use'; toolId: string; name: string; input: Record<string, unknown> }
+  | {
+      type: 'tool_use'
+      toolId: string
+      name: string
+      input: Record<string, unknown>
+    }
   | { type: 'tool_result'; toolId: string; output: string; error?: string }
-  | { type: 'thinking'; content: string };
+  | { type: 'thinking'; content: string }
 
 interface PermissionRequest {
-  toolUseId: string;
-  toolName: string;
-  input: Record<string, unknown>;
-  riskLevel: 'low' | 'medium' | 'high';
+  toolUseId: string
+  toolName: string
+  input: Record<string, unknown>
+  riskLevel: 'low' | 'medium' | 'high'
 }
 ```
 
@@ -231,12 +239,12 @@ interface PermissionRequest {
 
 四个独立 store，关注点分离：
 
-| Store | 职责 |
-|---|---|
-| `useChatStore` | 当前会话消息流、流式状态、权限请求队列 |
-| `useSessionStore` | 所有会话列表、活跃会话 ID、切换逻辑 |
-| `useProjectStore` | 项目列表、当前项目、项目配置 |
-| `useSettingsStore` | 全局设置（主题、字体、快捷键） |
+| Store              | 职责                                   |
+| ------------------ | -------------------------------------- |
+| `useChatStore`     | 当前会话消息流、流式状态、权限请求队列 |
+| `useSessionStore`  | 所有会话列表、活跃会话 ID、切换逻辑    |
+| `useProjectStore`  | 项目列表、当前项目、项目配置           |
+| `useSettingsStore` | 全局设置（主题、字体、快捷键）         |
 
 ---
 
@@ -286,7 +294,7 @@ App
 ### 5.2 关键组件技术选型
 
 | 组件 | 技术方案 | 说明 |
-|------|----------|------|
+| --- | --- | --- |
 | MessageList | React Virtuoso | 内置底部对齐、动态高度、反向加载历史 |
 | SessionList | React Virtuoso | 虚拟滚动长列表 |
 | Markdown 渲染 | react-markdown + remark-gfm | GFM 支持（表格、任务列表、脚注） |
@@ -318,16 +326,16 @@ App
   "message": {
     "role": "user|assistant",
     "content": [
-      {"type": "text", "text": "..."},
-      {"type": "tool_use", "id": "...", "name": "...", "input": {}},
-      {"type": "tool_result", "tool_use_id": "...", "content": "..."}
+      { "type": "text", "text": "..." },
+      { "type": "tool_use", "id": "...", "name": "...", "input": {} },
+      { "type": "tool_result", "tool_use_id": "...", "content": "..." }
     ]
   },
   "timestamp": "2026-03-09T10:00:00.000Z",
   "parentUuid": "...",
   "uuid": "...",
   "turn": 1,
-  "cost": {"inputTokens": 100, "outputTokens": 50, "usdCost": 0.001},
+  "cost": { "inputTokens": 100, "outputTokens": 50, "usdCost": 0.001 },
   "model": "claude-opus-4-6"
 }
 ```
@@ -346,17 +354,20 @@ App
 ### 6.2 会话生命周期
 
 **新建会话：**
+
 1. 生成新 sessionId（UUID）
 2. 首次发消息时 spawn claude 进程（`--session-id <newId>`）
 3. Claude Code 自动创建 JSONL 文件
 
 **加载历史会话：**
+
 1. 扫描 `~/.claude/projects/<encoded-cwd>/*.jsonl`
 2. 解析元数据：title（优先 `custom-title` 记录，否则首条 user 消息前 30 字）、lastActive、messageCount
 3. 辅助参考 `~/.claude/history.jsonl` 获取全局索引
 4. 按 lastActive 倒序排列
 
 **恢复会话：**
+
 1. 读取 JSONL 文件 → 解析为 ChatMessage[] 展示
 2. 用户发消息时 spawn claude 进程（`--resume <sessionId>`）
 
@@ -365,7 +376,7 @@ App
 ```typescript
 class JsonlParser {
   parseSessionFile(filePath: string): ChatMessage[]
-  getSessionTitle(filePath: string): string  // custom-title 优先
+  getSessionTitle(filePath: string): string // custom-title 优先
   parseStreamEvent(line: string): StreamEvent
 }
 ```
@@ -379,7 +390,7 @@ class JsonlParser {
 所有 IPC 通信**仅使用异步模式**（禁止 `ipcRenderer.sendSync`）。
 
 | API | 方向 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `claude.sendMessage(sessionId, text)` | R→M | 发送用户消息 |
 | `claude.onStreamEvent(cb)` | M→R | 订阅实时 stream-json 事件 |
 | `claude.abort(sessionId)` | R→M | SIGINT 终止当前进程 |
@@ -432,18 +443,18 @@ class JsonlParser {
 
 ## 9. 视觉设计
 
-| 属性 | 值 |
-|------|---|
-| 浅色基底 | `#F4F3EE` (Pampas) |
-| 深色基底 | 暖灰（非纯黑） |
-| 主交互色 | `#C15F3C` (Terracotta) |
-| 辅助色 | `#B1ADA1` (Cloudy) |
-| 正文字体 | Georgia, serif |
-| UI 控件 | -apple-system, BlinkMacSystemFont, Segoe UI |
-| 代码字体 | JetBrains Mono / Fira Code |
-| 动效 | 150-200ms 过渡，可全局关闭 |
-| 最小窗口 | 800 × 600 px |
-| 侧边栏折叠 | 窗口宽度 < 900px |
+| 属性       | 值                                          |
+| ---------- | ------------------------------------------- |
+| 浅色基底   | `#F4F3EE` (Pampas)                          |
+| 深色基底   | 暖灰（非纯黑）                              |
+| 主交互色   | `#C15F3C` (Terracotta)                      |
+| 辅助色     | `#B1ADA1` (Cloudy)                          |
+| 正文字体   | Georgia, serif                              |
+| UI 控件    | -apple-system, BlinkMacSystemFont, Segoe UI |
+| 代码字体   | JetBrains Mono / Fira Code                  |
+| 动效       | 150-200ms 过渡，可全局关闭                  |
+| 最小窗口   | 800 × 600 px                                |
+| 侧边栏折叠 | 窗口宽度 < 900px                            |
 
 ---
 
@@ -469,14 +480,14 @@ v4 使用 CSS-native 配置（非 JS）：
 
 ```css
 /* src/renderer/styles/global.css */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-pampas: #F4F3EE;
-  --color-terracotta: #C15F3C;
-  --color-cloudy: #B1ADA1;
+  --color-pampas: #f4f3ee;
+  --color-terracotta: #c15f3c;
+  --color-cloudy: #b1ada1;
   --font-serif: Georgia, serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 ```
 
@@ -487,7 +498,7 @@ Vite 集成使用 `@tailwindcss/postcss` 替代旧版 PostCSS 插件。
 ## 11. 里程碑
 
 | 阶段 | 交付内容 |
-|---|---|
+| --- | --- |
 | **M0** | electron-vite 脚手架 + ClaudeService（CLI spawn + stream-json）+ JSONL 解析器 + IPC 骨架 + AuthChecker |
 | **M1** | ChatArea UI + react-markdown/Shiki 渲染 + React Virtuoso 消息列表 + InputArea |
 | **M2** | PermissionBar（stdin 权限确认）+ 工具卡片（含风险标识）+ DiffView + 自动接受模式 |
@@ -546,7 +557,7 @@ shadcn/ui 组件通过 CLI 按需安装（不是 npm 依赖）。
 ### 已决策
 
 | 决策 | 选择 | 理由 |
-|---|---|---|
+| --- | --- | --- |
 | CLI 集成方式 | child_process.spawn + stream-json | 官方程序集成接口，无额外依赖，最稳定 |
 | 构建工具 | electron-vite + electron-builder | 成熟的 Vite 集成 + 灵活的打包控制 |
 | Markdown | react-markdown + rehype-highlight | 生态成熟，插件丰富，Shiki 集成 |
@@ -564,7 +575,7 @@ shadcn/ui 组件通过 CLI 按需安装（不是 npm 依赖）。
 ### 风险
 
 | 等级 | 风险 | 应对 |
-|---|---|---|
+| --- | --- | --- |
 | 🔴 高 | Claude Code CLI 输出格式 breaking change | 解析层独立为适配器模式，版本变更只需修改适配器 |
 | 🟡 中 | stdin 权限确认机制文档不完整 | 降级为 `--allowedTools` 预批准 + UI 提示 |
 | 🟡 中 | Electron 40 原生模块兼容问题 | 降级到 Electron 39（Node 22，更成熟） |
@@ -572,4 +583,4 @@ shadcn/ui 组件通过 CLI 按需安装（不是 npm 依赖）。
 
 ---
 
-*— End of Document —*
+_— End of Document —_
