@@ -4,17 +4,23 @@ interface SettingsState {
   theme: 'light' | 'dark' | 'system'
   fontSize: number
   sidebarCollapsed: boolean
+  autoAccept: boolean
+  autoAcceptConfirmed: boolean
 
   setTheme: (theme: 'light' | 'dark' | 'system') => void
   setFontSize: (size: number) => void
   toggleSidebar: () => void
   setSidebarCollapsed: (collapsed: boolean) => void
+  setAutoAccept: (enabled: boolean) => void
+  confirmAutoAccept: () => void
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
   theme: 'system',
   fontSize: 14,
   sidebarCollapsed: false,
+  autoAccept: false,
+  autoAcceptConfirmed: false,
 
   setTheme: (theme) => {
     set({ theme })
@@ -36,4 +42,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     }),
 
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+
+  setAutoAccept: (enabled) => {
+    set({ autoAccept: enabled })
+    window.electronAPI.config.set('globalAutoAccept', enabled)
+  },
+
+  confirmAutoAccept: () => set({ autoAcceptConfirmed: true }),
 }))
