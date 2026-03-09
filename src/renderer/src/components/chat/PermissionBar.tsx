@@ -71,13 +71,15 @@ export default function PermissionBar() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleDeny}
-            className="px-3 py-1.5 text-sm rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+            aria-label="Deny permission"
+            className="px-3 py-1.5 text-sm rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-gray-300 transition-colors"
           >
             Deny <kbd className="ml-1 text-[10px] text-cloudy">N</kbd>
           </button>
           <button
             onClick={handleAllow}
-            className="px-3 py-1.5 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors"
+            aria-label="Allow permission"
+            className="px-3 py-1.5 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-300 transition-colors"
           >
             Allow <kbd className="ml-1 text-[10px] text-green-200">Y</kbd>
           </button>

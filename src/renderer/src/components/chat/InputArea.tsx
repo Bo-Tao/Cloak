@@ -109,7 +109,8 @@ export default function InputArea() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Send a message..."
-            className="flex-1 resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-terracotta transition-colors"
+            aria-label="Message input"
+            className="flex-1 resize-none rounded-lg border border-border px-4 py-3 text-sm focus:outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 transition-colors"
             rows={2}
             disabled={isStreaming || !!pendingPermission}
           />
