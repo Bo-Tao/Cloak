@@ -27,7 +27,11 @@ interface ElectronAPI {
       version: string | null
       authenticated: boolean
     }>
-    getAuthStatus: () => Promise<unknown>
+    getAuthStatus: () => Promise<{
+      authenticated: boolean
+      email: string | null
+      authMethod: 'oauth' | 'api_billing' | null
+    }>
   }
 }
 
