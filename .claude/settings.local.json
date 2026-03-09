@@ -8,7 +8,13 @@
       "mcp__deepwiki__ask_question",
       "Bash(grep \"\"version\"\":*)",
       "Bash(kill %1:*)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Bash(git checkout:*)"
     ],
     "defaultMode": "bypassPermissions"
   },
