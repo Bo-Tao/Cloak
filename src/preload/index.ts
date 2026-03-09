@@ -1,22 +1,51 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron'
+import { IPC } from '../shared/types'
 
-// Custom APIs for renderer
-const api = {}
-
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
+const api = {
+  claude: {
+    sendMessage: (sessionId: string, text: string) =>
+      ipcRenderer.invoke(IPC.CLAUDE_SEND, sessionId, text),
+    onStreamEvent: (cb: (event: unknown) => void) => {
+      const handler = (_: unknown, data: unknown) => cb(data)
+      ipcRenderer.on(IPC.CLAUDE_STREAM, handler)
+      return () => ipcRenderer.removeListener(IPC.CLAUDE_STREAM, handler)
+    },
+    abort: (sessionId: string) =>
+      ipcRenderer.invoke(IPC.CLAUDE_ABORT, sessionId),
+    onPermissionRequest: (cb: (req: unknown) => void) => {
+      const handler = (_: unknown, data: unknown) => cb(data)
+      ipcRenderer.on(IPC.CLAUDE_PERMISSION_REQUEST, handler)
+      return () =>
+        ipcRenderer.removeListener(IPC.CLAUDE_PERMISSION_REQUEST, handler)
+    },
+    confirmPermission: (toolUseId: string, allow: boolean) =>
+      ipcRenderer.invoke(IPC.CLAUDE_CONFIRM, toolUseId, allow),
+  },
+  session: {
+    list: (projectPath: string) =>
+      ipcRenderer.invoke(IPC.SESSION_LIST, projectPath),
+    load: (sessionId: string) =>
+      ipcRenderer.invoke(IPC.SESSION_LOAD, sessionId),
+    create: (projectPath: string) =>
+      ipcRenderer.invoke(IPC.SESSION_CREATE, projectPath),
+    delete: (sessionId: string) =>
+      ipcRenderer.invoke(IPC.SESSION_DELETE, sessionId),
+  },
+  project: {
+    list: () => ipcRenderer.invoke(IPC.PROJECT_LIST),
+    add: (path: string) => ipcRenderer.invoke(IPC.PROJECT_ADD, path),
+    getClaudeMd: (path: string) =>
+      ipcRenderer.invoke(IPC.PROJECT_CLAUDE_MD, path),
+  },
+  config: {
+    get: (key: string) => ipcRenderer.invoke(IPC.CONFIG_GET, key),
+    set: (key: string, value: unknown) =>
+      ipcRenderer.invoke(IPC.CONFIG_SET, key, value),
+  },
+  app: {
+    checkCli: () => ipcRenderer.invoke(IPC.APP_CHECK_CLI),
+    getAuthStatus: () => ipcRenderer.invoke(IPC.APP_AUTH_STATUS),
+  },
 }
+
+contextBridge.exposeInMainWorld('electronAPI', api)
