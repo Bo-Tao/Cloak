@@ -9,7 +9,8 @@
       "Bash(grep \"\"version\"\":*)",
       "Bash(kill %1:*)",
       "Bash(git tag:*)"
-    ]
+    ],
+    "defaultMode": "bypassPermissions"
   },
   "sandbox": {
     "enabled": false,
