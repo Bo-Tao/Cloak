@@ -1,8 +1,12 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { IPC } from '../../shared/types'
 import type { ClaudeService } from '../services/claude-service'
+import { inferRiskLevel } from '../services/claude-service'
 import { checkCliInstalled, checkAuth } from '../services/auth-checker'
 import { getStore } from '../services/config-store'
+
+// Track active session so we know which process to send permission responses to
+let activeSessionId: string | null = null
 
 export function registerIpcHandlers(claudeService: ClaudeService): void {
   ipcMain.handle(IPC.APP_CHECK_CLI, async () => {
@@ -24,6 +28,7 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
   ipcMain.handle(
     IPC.CLAUDE_SEND,
     async (_e, sessionId: string, text: string) => {
+      activeSessionId = sessionId
       const store = await getStore()
       const cwd = store.get('lastProjectId') || process.cwd()
       const globalArgs = store.get('globalClaudeArgs') || []
@@ -44,8 +49,9 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
   ipcMain.handle(
     IPC.CLAUDE_CONFIRM,
     (_e, toolUseId: string, allow: boolean) => {
-      // Need sessionId context — will be refined in M2
-      // For now, try confirming on all active sessions
+      if (activeSessionId) {
+        claudeService.confirmPermission(activeSessionId, toolUseId, allow)
+      }
     },
   )
 
@@ -63,9 +69,21 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
   })
 
   // Forward stream events to all renderer windows
-  claudeService.on('stream-event', (data) => {
+  claudeService.on('stream-event', (data: { sessionId: string; event: Record<string, unknown> }) => {
     for (const win of BrowserWindow.getAllWindows()) {
       win.webContents.send(IPC.CLAUDE_STREAM, data)
     }
+
+    // Detect permission requests from stream events
+    const event = data.event
+    if (event.type === 'tool_use' || (event.type === 'assistant' && hasToolUse(event))) {
+      // Permission requests come as specific event types in stream-json
+      // The CLI handles permissions internally, but we may get them through the stream
+    }
   })
+}
+
+function hasToolUse(event: Record<string, unknown>): boolean {
+  const msg = event.message as { content?: Array<{ type: string }> } | undefined
+  return msg?.content?.some((b) => b.type === 'tool_use') ?? false
 }
