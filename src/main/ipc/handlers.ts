@@ -1,14 +1,23 @@
-import { ipcMain, BrowserWindow } from 'electron'
+import { ipcMain, BrowserWindow, dialog } from 'electron'
+import { existsSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import { join, basename } from 'node:path'
 import { IPC } from '../../shared/types'
 import type { ClaudeService } from '../services/claude-service'
-import { inferRiskLevel } from '../services/claude-service'
 import { checkCliInstalled, checkAuth } from '../services/auth-checker'
 import { getStore } from '../services/config-store'
+import {
+  listSessions,
+  loadSession,
+  createSession,
+  deleteSession,
+} from '../services/session-manager'
 
 // Track active session so we know which process to send permission responses to
 let activeSessionId: string | null = null
 
 export function registerIpcHandlers(claudeService: ClaudeService): void {
+  // === App ===
   ipcMain.handle(IPC.APP_CHECK_CLI, async () => {
     const store = await getStore()
     const claudePath = store.get('claudeBinaryPath') || 'claude'
@@ -25,6 +34,7 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
     return checkAuth(claudePath)
   })
 
+  // === Claude ===
   ipcMain.handle(
     IPC.CLAUDE_SEND,
     async (_e, sessionId: string, text: string) => {
@@ -55,6 +65,63 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
     },
   )
 
+  // === Sessions ===
+  ipcMain.handle(IPC.SESSION_LIST, async (_e, projectPath: string) => {
+    return listSessions(projectPath)
+  })
+
+  ipcMain.handle(IPC.SESSION_LOAD, async (_e, sessionId: string) => {
+    const store = await getStore()
+    const projectPath = store.get('lastProjectId') || process.cwd()
+    return loadSession(projectPath, sessionId)
+  })
+
+  ipcMain.handle(IPC.SESSION_CREATE, async (_e, projectPath: string) => {
+    return createSession(projectPath)
+  })
+
+  ipcMain.handle(IPC.SESSION_DELETE, async (_e, sessionId: string) => {
+    const store = await getStore()
+    const projectPath = store.get('lastProjectId') || process.cwd()
+    return deleteSession(projectPath, sessionId)
+  })
+
+  // === Projects ===
+  ipcMain.handle(IPC.PROJECT_LIST, async () => {
+    const store = await getStore()
+    const projects = store.get('projects') || {}
+    return Object.entries(projects).map(([path, config]) => ({
+      path,
+      name: config.name,
+      autoAccept: config.autoAccept,
+      claudeArgs: config.claudeArgs,
+    }))
+  })
+
+  ipcMain.handle(IPC.PROJECT_ADD, async (_e, projectPath: string) => {
+    if (!existsSync(projectPath)) throw new Error('Path does not exist')
+    const store = await getStore()
+    const projects = { ...store.get('projects') }
+    projects[projectPath] = {
+      name: basename(projectPath),
+      autoAccept: false,
+      claudeArgs: [],
+    }
+    store.set('projects', projects)
+    store.set('lastProjectId', projectPath)
+  })
+
+  ipcMain.handle(IPC.PROJECT_CLAUDE_MD, async (_e, projectPath: string) => {
+    const claudeMdPath = join(projectPath, 'CLAUDE.md')
+    if (!existsSync(claudeMdPath)) return null
+    try {
+      return await readFile(claudeMdPath, 'utf-8')
+    } catch {
+      return null
+    }
+  })
+
+  // === Config ===
   ipcMain.handle(IPC.CONFIG_GET, async (_e, key: string) => {
     const store = await getStore()
     return store.get(key as keyof import('../../shared/types').AppConfig)
@@ -68,22 +135,10 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
     )
   })
 
-  // Forward stream events to all renderer windows
+  // === Stream event forwarding ===
   claudeService.on('stream-event', (data: { sessionId: string; event: Record<string, unknown> }) => {
     for (const win of BrowserWindow.getAllWindows()) {
       win.webContents.send(IPC.CLAUDE_STREAM, data)
     }
-
-    // Detect permission requests from stream events
-    const event = data.event
-    if (event.type === 'tool_use' || (event.type === 'assistant' && hasToolUse(event))) {
-      // Permission requests come as specific event types in stream-json
-      // The CLI handles permissions internally, but we may get them through the stream
-    }
   })
-}
-
-function hasToolUse(event: Record<string, unknown>): boolean {
-  const msg = event.message as { content?: Array<{ type: string }> } | undefined
-  return msg?.content?.some((b) => b.type === 'tool_use') ?? false
 }
