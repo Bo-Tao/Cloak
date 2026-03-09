@@ -14,11 +14,10 @@ const proc = spawn(
     '--output-format',
     'stream-json',
     '--verbose',
-    '-p',
     'Say hello in one word',
   ],
   {
-    stdio: ['pipe', 'pipe', 'pipe'],
+    stdio: ['ignore', 'pipe', 'pipe'],
     env: cleanEnv,
   },
 )
