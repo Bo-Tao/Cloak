@@ -53,7 +53,7 @@ export default function PermissionBar() {
       : ''
 
   return (
-    <div className="border-t border-gray-200 bg-white px-4 py-3 animate-in slide-in-from-bottom">
+    <div className="border-t border-border bg-surface px-4 py-3 animate-in slide-in-from-bottom">
       <div className="max-w-3xl mx-auto flex items-center gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">

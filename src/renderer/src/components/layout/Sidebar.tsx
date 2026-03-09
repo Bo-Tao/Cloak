@@ -87,12 +87,12 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="flex flex-col border-r border-gray-200 bg-white transition-[width] duration-200 overflow-hidden shrink-0"
+      className="flex flex-col border-r border-border bg-surface transition-[width] duration-200 overflow-hidden shrink-0"
       style={{ width: sidebarCollapsed ? 0 : 240 }}
     >
       {/* Drag region for title bar */}
       <div className="h-12 flex items-center px-4 shrink-0 drag-region">
-        <span className="font-serif text-lg text-gray-800 no-drag">Cloak</span>
+        <span className="font-serif text-lg text-text-primary no-drag">Cloak</span>
       </div>
 
       {/* Project selector */}
@@ -199,7 +199,7 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom controls */}
-      <div className="border-t border-gray-200 p-3 shrink-0 flex items-center justify-between">
+      <div className="border-t border-border p-3 shrink-0 flex items-center justify-between">
         <button
           className="text-xs text-cloudy hover:text-gray-600 transition-colors"
           onClick={toggleSidebar}

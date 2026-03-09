@@ -82,7 +82,7 @@ export default function InputArea() {
   }, [autoAccept, autoAcceptConfirmed, setAutoAccept])
 
   return (
-    <div className="border-t border-gray-200 bg-white">
+    <div className="border-t border-border bg-surface">
       {/* Auto-accept warning banner */}
       {autoAccept && (
         <div className="px-4 py-2 bg-yellow-50 border-b border-yellow-200 flex items-center justify-between">
