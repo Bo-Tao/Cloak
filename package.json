@@ -32,6 +32,7 @@
     "electron-updater": "^6.8.3",
     "lucide-react": "^0.577.0",
     "radix-ui": "^1.4.3",
+    "react-diff-viewer-continued": "^4.1.2",
     "react-markdown": "^10.1.0",
     "react-virtuoso": "^4.18.3",
     "remark-gfm": "^4.0.1",
