@@ -2,16 +2,31 @@ import { describe, it, expect } from 'vitest'
 import { inferRiskLevel, buildClaudeArgs } from '../services/claude-service'
 
 describe('ClaudeService utilities', () => {
-  it('infers low risk for read tools', () => {
+  it('infers low risk for read-only tools', () => {
     expect(inferRiskLevel('Read', {})).toBe('low')
     expect(inferRiskLevel('Glob', {})).toBe('low')
     expect(inferRiskLevel('Grep', {})).toBe('low')
     expect(inferRiskLevel('WebFetch', {})).toBe('low')
+    expect(inferRiskLevel('WebSearch', {})).toBe('low')
+    expect(inferRiskLevel('LS', {})).toBe('low')
+    expect(inferRiskLevel('Agent', {})).toBe('low')
+    expect(inferRiskLevel('AskUserQuestion', {})).toBe('low')
+    expect(inferRiskLevel('TaskOutput', {})).toBe('low')
+    expect(inferRiskLevel('TaskCreate', {})).toBe('low')
+    expect(inferRiskLevel('TaskGet', {})).toBe('low')
+    expect(inferRiskLevel('TaskList', {})).toBe('low')
+    expect(inferRiskLevel('TaskUpdate', {})).toBe('low')
+    expect(inferRiskLevel('KillShell', {})).toBe('low')
+    expect(inferRiskLevel('MCPSearch', {})).toBe('low')
+    expect(inferRiskLevel('LSP', {})).toBe('low')
   })
 
-  it('infers medium risk for write tools', () => {
+  it('infers medium risk for write/control tools', () => {
     expect(inferRiskLevel('Write', {})).toBe('medium')
     expect(inferRiskLevel('Edit', {})).toBe('medium')
+    expect(inferRiskLevel('NotebookEdit', {})).toBe('medium')
+    expect(inferRiskLevel('ExitPlanMode', {})).toBe('medium')
+    expect(inferRiskLevel('Skill', {})).toBe('medium')
   })
 
   it('infers high risk for Bash', () => {

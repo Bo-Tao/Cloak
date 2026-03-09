@@ -10,8 +10,18 @@ const LOW_RISK = new Set([
   'WebSearch',
   'WebFetch',
   'LS',
+  'Agent',
+  'AskUserQuestion',
+  'TaskOutput',
+  'TaskCreate',
+  'TaskGet',
+  'TaskList',
+  'TaskUpdate',
+  'KillShell',
+  'MCPSearch',
+  'LSP',
 ])
-const MEDIUM_RISK = new Set(['Write', 'Edit', 'NotebookEdit'])
+const MEDIUM_RISK = new Set(['Write', 'Edit', 'NotebookEdit', 'ExitPlanMode', 'Skill'])
 
 export function inferRiskLevel(
   toolName: string,
@@ -41,7 +51,7 @@ export function buildClaudeArgs(opts: BuildArgsOptions): string[] {
   if (opts.autoAccept)
     args.push(
       '--allowedTools',
-      'Bash,Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,LS,NotebookEdit',
+      'Bash,Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,LS,NotebookEdit,Agent,ExitPlanMode,Skill',
     )
   args.push(...opts.extraArgs)
   return args

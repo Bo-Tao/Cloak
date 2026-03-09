@@ -29,7 +29,7 @@
 
 ---
 
-### Task 1: Initialize electron-vite Project
+### ~~Task 1: Initialize electron-vite Project~~ ✅
 
 **Files:**
 
@@ -72,7 +72,7 @@ git commit -m "feat(m0): initialize electron-vite project with React + TypeScrip
 
 ---
 
-### Task 2: Configure Tailwind CSS v4 + shadcn/ui
+### ~~Task 2: Configure Tailwind CSS v4 + shadcn/ui~~ ✅
 
 **Files:**
 
@@ -153,7 +153,7 @@ git commit -m "feat(m0): configure Tailwind CSS v4 and shadcn/ui"
 
 ---
 
-### Task 3: Create Project Directory Structure + Shared Types
+### ~~Task 3: Create Project Directory Structure + Shared Types~~ ✅
 
 **Files:**
 
@@ -381,13 +381,13 @@ git tag m0-complete
 
 ---
 
-## M0 Verification Checklist
+## M0 Verification Checklist ✅
 
-- [ ] `pnpm dev` launches Electron window
-- [ ] shadcn Button renders with Tailwind classes
-- [ ] Tailwind v4 @theme variables work (bg-pampas, text-cloudy)
-- [ ] All placeholder files exist without import errors
-- [ ] Project structure matches specified layout
+- [x] `pnpm dev` launches Electron window
+- [x] shadcn Button renders with Tailwind classes
+- [x] Tailwind v4 @theme variables work (bg-pampas, text-cloudy)
+- [x] All placeholder files exist without import errors
+- [x] Project structure matches specified layout
 
 ---
 
@@ -397,7 +397,7 @@ git tag m0-complete
 
 ---
 
-### Task 4: Implement Config Store
+### ~~Task 4: Implement Config Store~~ ✅
 
 **Files:**
 
@@ -495,7 +495,7 @@ git commit -m "feat(m1): implement config store with electron-store v9"
 
 ---
 
-### Task 5: Implement AuthChecker
+### ~~Task 5: Implement AuthChecker~~ ✅
 
 **Files:**
 
@@ -635,7 +635,7 @@ git commit -m "feat(m1): implement AuthChecker with version and auth status pars
 
 ---
 
-### Task 6: Implement JSONL Parser
+### ~~Task 6: Implement JSONL Parser~~ ✅
 
 **Files:**
 
@@ -923,7 +923,7 @@ git commit -m "feat(m1): implement JSONL parser for session files and stream eve
 
 ---
 
-### Task 7: Implement ClaudeService
+### ~~Task 7: Implement ClaudeService~~ ✅
 
 **Files:**
 
