@@ -1,6 +1,6 @@
+import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'electron-vite'
-import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
@@ -9,12 +9,9 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve(
-          fileURLToPath(new URL('./src/renderer/src', import.meta.url)),
-          'src/renderer/src',
-        ),
+        '@renderer': fileURLToPath(new URL('./src/renderer/src', import.meta.url)),
       },
     },
-    plugins: [react()],
+    plugins: [tailwindcss(), react()],
   },
 })
