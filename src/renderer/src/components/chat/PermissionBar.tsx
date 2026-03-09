@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from 'react'
 import { useChatStore } from '../../stores/chat-store'
-import { useSessionStore } from '../../stores/session-store'
 import type { RiskLevel } from '../../../../shared/types'
 
 const RISK_STYLES: Record<RiskLevel, string> = {
@@ -11,7 +10,6 @@ const RISK_STYLES: Record<RiskLevel, string> = {
 
 export default function PermissionBar() {
   const { pendingPermission, setPendingPermission } = useChatStore()
-  const { activeSessionId } = useSessionStore()
 
   const handleAllow = useCallback(() => {
     if (!pendingPermission) return

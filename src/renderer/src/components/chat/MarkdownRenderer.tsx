@@ -38,7 +38,7 @@ function getHighlighter(): Promise<Highlighter> {
 }
 
 function CodeBlock({ className, children }: { className?: string; children?: React.ReactNode }) {
-  const ref = useRef<HTMLPreElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const [html, setHtml] = useState<string | null>(null)
   const code = String(children).replace(/\n$/, '')
   const match = className?.match(/language-(\w+)/)

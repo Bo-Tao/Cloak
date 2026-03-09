@@ -46,6 +46,18 @@ const api = {
     checkCli: () => ipcRenderer.invoke(IPC.APP_CHECK_CLI),
     getAuthStatus: () => ipcRenderer.invoke(IPC.APP_AUTH_STATUS),
     selectFolder: () => ipcRenderer.invoke(IPC.APP_SELECT_FOLDER) as Promise<string | null>,
+    checkUpdate: () => ipcRenderer.invoke(IPC.APP_CHECK_UPDATE) as Promise<{ available: boolean; version?: string }>,
+    installUpdate: () => ipcRenderer.invoke(IPC.APP_INSTALL_UPDATE),
+    onUpdateAvailable: (cb: (info: { version: string }) => void) => {
+      const handler = (_: unknown, data: { version: string }) => cb(data)
+      ipcRenderer.on(IPC.APP_UPDATE_AVAILABLE, handler)
+      return () => ipcRenderer.removeListener(IPC.APP_UPDATE_AVAILABLE, handler)
+    },
+    onUpdateDownloaded: (cb: (info: { version: string }) => void) => {
+      const handler = (_: unknown, data: { version: string }) => cb(data)
+      ipcRenderer.on(IPC.APP_UPDATE_DOWNLOADED, handler)
+      return () => ipcRenderer.removeListener(IPC.APP_UPDATE_DOWNLOADED, handler)
+    },
   },
 }
 

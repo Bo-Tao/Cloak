@@ -48,7 +48,7 @@ function inferRisk(name: string): RiskLevel {
   return 'high'
 }
 
-function getOperationSummary(toolName: string, input: Record<string, unknown>): string {
+function getOperationSummary(_toolName: string, input: Record<string, unknown>): string {
   if (input.file_path) return String(input.file_path)
   if (input.command) return String(input.command).slice(0, 80)
   if (input.pattern) return String(input.pattern)
@@ -60,7 +60,7 @@ function getOperationSummary(toolName: string, input: Record<string, unknown>): 
 export default function ToolCard({
   toolName,
   input,
-  toolId,
+  toolId: _toolId,
   result,
   error,
   riskLevel,

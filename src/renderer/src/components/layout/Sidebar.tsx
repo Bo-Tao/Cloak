@@ -9,11 +9,26 @@ export default function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useSettingsStore()
   const { sessions, activeSessionId, setSessions, setActive, removeSession } =
     useSessionStore()
-  const { projects, activeProject, setProjects, setActive: setActiveProject, addProject } =
+  const { projects, activeProject, setProjects, setActive: setActiveProject } =
     useProjectStore()
   const { clearMessages } = useChatStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [showProjectMenu, setShowProjectMenu] = useState(false)
+  const [updateInfo, setUpdateInfo] = useState<{ version: string; downloaded: boolean } | null>(null)
+
+  // Listen for update events
+  useEffect(() => {
+    const cleanupAvailable = window.electronAPI.app.onUpdateAvailable((info) => {
+      setUpdateInfo({ version: info.version, downloaded: false })
+    })
+    const cleanupDownloaded = window.electronAPI.app.onUpdateDownloaded((info) => {
+      setUpdateInfo({ version: info.version, downloaded: true })
+    })
+    return () => {
+      cleanupAvailable()
+      cleanupDownloaded()
+    }
+  }, [])
 
   // Load projects on mount
   useEffect(() => {
@@ -198,13 +213,29 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom controls */}
-      <div className="border-t border-border p-3 shrink-0 flex items-center justify-between">
-        <button
-          className="text-xs text-cloudy hover:text-gray-600 transition-colors"
-          onClick={toggleSidebar}
-        >
-          Collapse
-        </button>
+      <div className="border-t border-border p-3 shrink-0 space-y-2">
+        {updateInfo && (
+          <button
+            onClick={() => {
+              if (updateInfo.downloaded) {
+                window.electronAPI.app.installUpdate()
+              }
+            }}
+            className="w-full text-left px-2 py-1.5 text-[11px] rounded-md bg-terracotta/10 text-terracotta hover:bg-terracotta/20 transition-colors"
+          >
+            {updateInfo.downloaded
+              ? `v${updateInfo.version} ready — click to restart`
+              : `v${updateInfo.version} available — downloading...`}
+          </button>
+        )}
+        <div className="flex items-center justify-between">
+          <button
+            className="text-xs text-cloudy hover:text-gray-600 transition-colors"
+            onClick={toggleSidebar}
+          >
+            Collapse
+          </button>
+        </div>
       </div>
     </aside>
   )

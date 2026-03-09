@@ -87,4 +87,8 @@ export const IPC = {
   APP_CHECK_CLI: 'app:check-cli',
   APP_AUTH_STATUS: 'app:auth-status',
   APP_SELECT_FOLDER: 'app:select-folder',
+  APP_UPDATE_AVAILABLE: 'app:update-available',
+  APP_UPDATE_DOWNLOADED: 'app:update-downloaded',
+  APP_CHECK_UPDATE: 'app:check-update',
+  APP_INSTALL_UPDATE: 'app:install-update',
 } as const

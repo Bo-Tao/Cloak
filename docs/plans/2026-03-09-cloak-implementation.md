@@ -1501,7 +1501,7 @@ git tag m1-complete
 
 ---
 
-### Task 11: Implement Zustand Stores
+### ~~Task 11: Implement Zustand Stores~~ ✅
 
 **Files:**
 
@@ -1523,7 +1523,7 @@ Write unit tests for each store's state transitions.
 
 ---
 
-### Task 12: Implement MainLayout + Sidebar Shell
+### ~~Task 12: Implement MainLayout + Sidebar Shell~~ ✅
 
 **Files:**
 
@@ -1542,7 +1542,7 @@ Write unit tests for each store's state transitions.
 
 ---
 
-### Task 13: Implement InputArea
+### ~~Task 13: Implement InputArea~~ ✅
 
 **Files:**
 
@@ -1559,7 +1559,7 @@ Write unit tests for each store's state transitions.
 
 ---
 
-### Task 14: Implement MessageList with React Virtuoso
+### ~~Task 14: Implement MessageList with React Virtuoso~~ ✅
 
 **Files:**
 
@@ -1584,7 +1584,7 @@ pnpm add react-virtuoso
 
 ---
 
-### Task 15: Implement MarkdownRenderer with Shiki
+### ~~Task 15: Implement MarkdownRenderer with Shiki~~ ✅
 
 **Files:**
 
@@ -1607,7 +1607,7 @@ pnpm add react-markdown remark-gfm shiki
 
 ---
 
-### Task 16: Wire Stream Events to Chat UI
+### ~~Task 16: Wire Stream Events to Chat UI~~ ✅
 
 **Files:**
 
@@ -1629,7 +1629,7 @@ pnpm add react-markdown remark-gfm shiki
 
 ---
 
-### Task 17: M1 Integration Test
+### ~~Task 17: M1 Integration Test~~ ✅
 
 - Send a real message through InputArea
 - Verify stream-json events render as AssistantMessage with Markdown
@@ -1647,16 +1647,16 @@ git tag m2-complete
 
 ---
 
-## M2 Verification Checklist
+## M2 Verification Checklist ✅
 
-- [ ] InputArea: Enter sends, Shift+Enter newlines, auto-resize works
-- [ ] Messages render in virtual-scrolled list (React Virtuoso)
-- [ ] Auto-scroll to bottom on new messages
-- [ ] Claude responses stream in real-time (word by word)
-- [ ] Markdown renders: headers, lists, tables, links, inline code
-- [ ] Code blocks have Shiki syntax highlighting
-- [ ] Stop button appears during streaming and aborts response
-- [ ] Sidebar collapses/expands with 200ms transition
+- [x] InputArea: Enter sends, Shift+Enter newlines, auto-resize works
+- [x] Messages render in virtual-scrolled list (React Virtuoso)
+- [x] Auto-scroll to bottom on new messages
+- [x] Claude responses stream in real-time (word by word)
+- [x] Markdown renders: headers, lists, tables, links, inline code
+- [x] Code blocks have Shiki syntax highlighting
+- [x] Stop button appears during streaming and aborts response
+- [x] Sidebar collapses/expands with 200ms transition
 
 ---
 
@@ -1666,7 +1666,7 @@ git tag m2-complete
 
 ---
 
-### Task 18: Implement ThinkingBlock
+### ~~Task 18: Implement ThinkingBlock~~ ✅
 
 **Files:**
 
@@ -1680,7 +1680,7 @@ git tag m2-complete
 
 ---
 
-### Task 19: Implement ToolCard
+### ~~Task 19: Implement ToolCard~~ ✅
 
 **Files:**
 
@@ -1697,7 +1697,7 @@ Install: `pnpm add lucide-react`
 
 ---
 
-### Task 20: Implement PermissionBar
+### ~~Task 20: Implement PermissionBar~~ ✅
 
 **Files:**
 
@@ -1713,7 +1713,7 @@ Install: `pnpm add lucide-react`
 
 ---
 
-### Task 21: Implement DiffView
+### ~~Task 21: Implement DiffView~~ ✅
 
 **Files:**
 
@@ -1730,7 +1730,7 @@ Install: `pnpm add react-diff-viewer-continued`
 
 ---
 
-### Task 22: Implement Auto-Accept Mode
+### ~~Task 22: Implement Auto-Accept Mode~~ ✅
 
 **Files:**
 
@@ -1748,7 +1748,7 @@ Install: `pnpm add react-diff-viewer-continued`
 
 ---
 
-### Task 23: M2 Integration Test
+### ~~Task 23: M2 Integration Test~~ ✅
 
 - Ask Claude to read a file → ToolCard appears with blue/low-risk badge
 - PermissionBar shows → press Y → result appears in ToolCard
@@ -1766,16 +1766,16 @@ git tag m3-complete
 
 ---
 
-## M3 Verification Checklist
+## M3 Verification Checklist ✅
 
-- [ ] ThinkingBlock collapses/expands
-- [ ] ToolCard shows correct icon and risk color per tool type
-- [ ] ToolCard expands to show full input/output
-- [ ] PermissionBar appears for tool_use events
-- [ ] Y/N keyboard shortcuts work for allow/deny
-- [ ] DiffView renders for Edit operations (unified + split toggle)
-- [ ] Auto-accept mode: warning banner shown, tools auto-approved
-- [ ] First-time auto-accept shows confirmation dialog
+- [x] ThinkingBlock collapses/expands
+- [x] ToolCard shows correct icon and risk color per tool type
+- [x] ToolCard expands to show full input/output
+- [x] PermissionBar appears for tool_use events
+- [x] Y/N keyboard shortcuts work for allow/deny
+- [x] DiffView renders for Edit operations (unified + split toggle)
+- [x] Auto-accept mode: warning banner shown, tools auto-approved
+- [x] First-time auto-accept shows confirmation dialog
 
 ---
 
@@ -1785,7 +1785,7 @@ git tag m3-complete
 
 ---
 
-### Task 24: Implement SessionManager (Main Process)
+### ~~Task 24: Implement SessionManager (Main Process)~~ ✅
 
 **Files:**
 
@@ -1804,7 +1804,7 @@ Write tests for path encoding and metadata extraction.
 
 ---
 
-### Task 25: Implement ProjectManager (Main Process)
+### ~~Task 25: Implement ProjectManager (Main Process)~~ ✅
 
 **Files:**
 
@@ -1821,7 +1821,7 @@ Write tests for path encoding and metadata extraction.
 
 ---
 
-### Task 26: Implement Sidebar with SessionList
+### ~~Task 26: Implement Sidebar with SessionList~~ ✅
 
 **Files:**
 
@@ -1839,7 +1839,7 @@ Write tests for path encoding and metadata extraction.
 
 ---
 
-### Task 27: Implement AuthGate
+### ~~Task 27: Implement AuthGate~~ ✅
 
 **Files:**
 
@@ -1860,7 +1860,7 @@ Install: `pnpm add @xterm/xterm @xterm/addon-fit node-pty`
 
 ---
 
-### Task 28: Implement SettingsOverlay
+### ~~Task 28: Implement SettingsOverlay~~ ✅
 
 **Files:**
 
@@ -1879,7 +1879,7 @@ Install: `pnpm add @xterm/xterm @xterm/addon-fit node-pty`
 
 ---
 
-### Task 29: M3 Integration Test
+### ~~Task 29: M3 Integration Test~~ ✅
 
 - Full flow: launch → AuthGate → project selection → session history loads
 - Click session → messages render in ChatArea
@@ -1898,20 +1898,20 @@ git tag m4-complete
 
 ---
 
-## M4 Verification Checklist
+## M4 Verification Checklist ✅
 
-- [ ] AuthGate: shows InstallGuide if CLI missing
-- [ ] AuthGate: shows LoginGuide with terminal if unauthenticated
-- [ ] AuthGate: proceeds to MainLayout when authenticated
-- [ ] ProjectSelector: lists projects, add via folder picker
-- [ ] SessionList: shows sessions sorted by lastActive
-- [ ] Session titles: custom-title preferred, fallback to first message
-- [ ] Click session → loads message history
-- [ ] New session → empty chat ready
-- [ ] Delete session → confirmation → removed
-- [ ] Settings: theme toggle works (light/dark/system)
-- [ ] Settings: font size slider updates UI
-- [ ] Cmd+, opens settings, Escape closes
+- [x] AuthGate: shows InstallGuide if CLI missing
+- [x] AuthGate: shows LoginGuide with terminal if unauthenticated
+- [x] AuthGate: proceeds to MainLayout when authenticated
+- [x] ProjectSelector: lists projects, add via folder picker
+- [x] SessionList: shows sessions sorted by lastActive
+- [x] Session titles: custom-title preferred, fallback to first message
+- [x] Click session → loads message history
+- [x] New session → empty chat ready
+- [x] Delete session → confirmation → removed
+- [x] Settings: theme toggle works (light/dark/system)
+- [x] Settings: font size slider updates UI
+- [x] Cmd+, opens settings, Escape closes
 
 ---
 
@@ -1921,7 +1921,7 @@ git tag m4-complete
 
 ---
 
-### Task 30: Window State Persistence
+### ~~Task 30: Window State Persistence~~ ✅
 
 **Files:**
 
@@ -1935,7 +1935,7 @@ git tag m4-complete
 
 ---
 
-### Task 31: Dark Theme
+### ~~Task 31: Dark Theme~~ ✅
 
 **Files:**
 
@@ -1952,7 +1952,7 @@ git tag m4-complete
 
 ---
 
-### Task 32: Configure electron-builder
+### ~~Task 32: Configure electron-builder~~ ✅
 
 **Files:**
 
@@ -1998,7 +1998,7 @@ Install: `pnpm add -D electron-builder`
 
 ---
 
-### Task 33: Implement UpdateService (Optional)
+### ~~Task 33: Implement UpdateService (Optional)~~ ✅
 
 **Files:**
 
@@ -2016,7 +2016,7 @@ Install: `pnpm add electron-updater`
 
 ---
 
-### Task 34: Design Polish + Accessibility
+### ~~Task 34: Design Polish + Accessibility~~ ✅
 
 - Verify Pampas/Terracotta color scheme consistency across all components
 - ARIA labels on all interactive elements
@@ -2029,7 +2029,7 @@ Install: `pnpm add electron-updater`
 
 ---
 
-### Task 35: Final Testing + Build
+### ~~Task 35: Final Testing + Build~~ ✅
 
 **Step 1: Performance verification**
 
@@ -2064,20 +2064,20 @@ git tag v0.1.0
 
 ---
 
-## M5 Verification Checklist
+## M5 Verification Checklist ✅
 
-- [ ] Window bounds persist across restarts
-- [ ] Sidebar collapsed state persists
-- [ ] Dark theme renders correctly (warm gray, not pure black)
-- [ ] System theme preference detected and applied
-- [ ] Reduced motion setting disables all animations
-- [ ] `.dmg` file produced by electron-builder
-- [ ] App installs and launches from .dmg
-- [ ] Full conversation flow works in packaged app
-- [ ] 1000+ messages scroll smoothly
-- [ ] Memory < 400MB under active use
-- [ ] Cold start < 3 seconds
-- [ ] All ARIA labels present on interactive elements
+- [x] Window bounds persist across restarts
+- [x] Sidebar collapsed state persists
+- [x] Dark theme renders correctly (warm gray, not pure black)
+- [x] System theme preference detected and applied
+- [x] Reduced motion setting disables all animations
+- [x] `.dmg` file produced by electron-builder
+- [x] App installs and launches from .dmg
+- [x] Full conversation flow works in packaged app
+- [x] 1000+ messages scroll smoothly
+- [x] Memory < 400MB under active use
+- [x] Cold start < 3 seconds
+- [x] All ARIA labels present on interactive elements
 
 ---
 

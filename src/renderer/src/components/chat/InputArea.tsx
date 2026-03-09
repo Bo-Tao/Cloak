@@ -19,7 +19,7 @@ export default function InputArea() {
   const [showAutoAcceptDialog, setShowAutoAcceptDialog] = useState(false)
   const { isStreaming, pendingPermission } = useChatStore()
   const { activeSessionId } = useSessionStore()
-  const { autoAccept, autoAcceptConfirmed, setAutoAccept, confirmAutoAccept } = useSettingsStore()
+  const { autoAccept, setAutoAccept, confirmAutoAccept } = useSettingsStore()
 
   const adjustHeight = useCallback(() => {
     const ta = textareaRef.current
@@ -72,14 +72,6 @@ export default function InputArea() {
     },
     [handleSend],
   )
-
-  const handleAutoAcceptToggle = useCallback(() => {
-    if (!autoAccept && !autoAcceptConfirmed) {
-      setShowAutoAcceptDialog(true)
-    } else {
-      setAutoAccept(!autoAccept)
-    }
-  }, [autoAccept, autoAcceptConfirmed, setAutoAccept])
 
   return (
     <div className="border-t border-border bg-surface">

@@ -33,6 +33,10 @@ interface ElectronAPI {
       authMethod: 'oauth' | 'api_billing' | null
     }>
     selectFolder: () => Promise<string | null>
+    checkUpdate: () => Promise<{ available: boolean; version?: string }>
+    installUpdate: () => Promise<void>
+    onUpdateAvailable: (cb: (info: { version: string }) => void) => () => void
+    onUpdateDownloaded: (cb: (info: { version: string }) => void) => () => void
   }
 }
 

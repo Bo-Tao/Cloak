@@ -15,12 +15,7 @@ export function useTheme() {
       }
     }
 
-    if (theme === 'dark') {
-      applyTheme(true)
-    } else if (theme === 'light') {
-      applyTheme(false)
-    } else {
-      // System preference
+    if (theme === 'system') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)')
       applyTheme(mq.matches)
 
@@ -28,5 +23,8 @@ export function useTheme() {
       mq.addEventListener('change', handler)
       return () => mq.removeEventListener('change', handler)
     }
+
+    applyTheme(theme === 'dark')
+    return undefined
   }, [theme])
 }

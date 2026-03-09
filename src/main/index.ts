@@ -5,8 +5,10 @@ import icon from '../../resources/icon.png?asset'
 import { registerIpcHandlers } from './ipc/handlers'
 import { ClaudeService } from './services/claude-service'
 import { getStore } from './services/config-store'
+import { UpdateService } from './services/update-service'
 
 const claudeService = new ClaudeService()
+const updateService = new UpdateService()
 
 function debounce<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
   let timer: ReturnType<typeof setTimeout>
@@ -107,7 +109,13 @@ app.whenReady().then(async () => {
   }
 
   // Register IPC handlers
-  registerIpcHandlers(claudeService)
+  registerIpcHandlers(claudeService, updateService)
+
+  // Initialize auto-updater in production only
+  if (!is.dev) {
+    updateService.init()
+    updateService.checkForUpdates()
+  }
 
   createWindow()
 

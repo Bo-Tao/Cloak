@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises'
 import { join, basename } from 'node:path'
 import { IPC } from '../../shared/types'
 import type { ClaudeService } from '../services/claude-service'
+import type { UpdateService } from '../services/update-service'
 import { checkCliInstalled, checkAuth } from '../services/auth-checker'
 import { getStore } from '../services/config-store'
 import {
@@ -16,7 +17,7 @@ import {
 // Track active session so we know which process to send permission responses to
 let activeSessionId: string | null = null
 
-export function registerIpcHandlers(claudeService: ClaudeService): void {
+export function registerIpcHandlers(claudeService: ClaudeService, updateService?: UpdateService): void {
   // === App ===
   ipcMain.handle(IPC.APP_CHECK_CLI, async () => {
     const store = await getStore()
@@ -143,6 +144,16 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
       key as keyof import('../../shared/types').AppConfig,
       value as never,
     )
+  })
+
+  // === Updates ===
+  ipcMain.handle(IPC.APP_CHECK_UPDATE, async () => {
+    if (!updateService) return { available: false }
+    return updateService.checkForUpdates()
+  })
+
+  ipcMain.handle(IPC.APP_INSTALL_UPDATE, () => {
+    updateService?.installUpdate()
   })
 
   // === Stream event forwarding ===

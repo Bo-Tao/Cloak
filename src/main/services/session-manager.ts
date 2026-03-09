@@ -67,7 +67,7 @@ export async function loadSession(
   }
 }
 
-export async function createSession(projectPath: string): Promise<string> {
+export async function createSession(_projectPath: string): Promise<string> {
   // Simply generate a UUID — the JSONL file will be created by Claude CLI when messages are sent
   return crypto.randomUUID()
 }
