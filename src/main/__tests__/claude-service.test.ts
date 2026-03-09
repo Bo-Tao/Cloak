@@ -43,6 +43,7 @@ describe('ClaudeService utilities', () => {
     expect(args).toContain('--print')
     expect(args).toContain('--output-format')
     expect(args).toContain('stream-json')
+    expect(args).toContain('--verbose')
     expect(args).not.toContain('--resume')
   })
 

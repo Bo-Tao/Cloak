@@ -46,6 +46,7 @@ export function buildClaudeArgs(opts: BuildArgsOptions): string[] {
     'stream-json',
     '--input-format',
     'stream-json',
+    '--verbose',
   ]
   if (opts.sessionId) args.push('--resume', opts.sessionId)
   if (opts.autoAccept)
