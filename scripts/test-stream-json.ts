@@ -15,7 +15,11 @@ const proc = spawn(
   ],
   {
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: { ...process.env, CLAUDECODE: undefined },
+    env: (() => {
+      const env = { ...process.env }
+      delete env.CLAUDECODE
+      return env
+    })(),
   },
 )
 
