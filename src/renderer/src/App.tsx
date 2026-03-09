@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
 import MainLayout from './components/layout/MainLayout'
+import { useStreamEvents } from './hooks/useStreamEvents'
 
 export default function App() {
   const [status, setStatus] = useState<'checking' | 'ready' | 'no-cli' | 'no-auth'>('checking')
   const [cliVersion, setCliVersion] = useState<string | null>(null)
+
+  // Subscribe to stream events globally
+  useStreamEvents()
 
   useEffect(() => {
     window.electronAPI.app.checkCli().then((s) => {
