@@ -1,10 +1,12 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useSettingsStore } from '../../stores/settings-store'
 import Sidebar from './Sidebar'
 import ChatArea from '../chat/ChatArea'
+import SettingsOverlay from '../settings/SettingsOverlay'
 
 export default function MainLayout() {
   const { sidebarCollapsed, setSidebarCollapsed, toggleSidebar } = useSettingsStore()
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   // Auto-collapse sidebar when window is narrow
   useEffect(() => {
@@ -17,6 +19,18 @@ export default function MainLayout() {
     handleResize()
     return () => window.removeEventListener('resize', handleResize)
   }, [sidebarCollapsed, setSidebarCollapsed])
+
+  // Cmd+, to open settings
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === ',') {
+        e.preventDefault()
+        setSettingsOpen((prev) => !prev)
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [])
 
   return (
     <div className="flex h-screen bg-pampas">
@@ -32,6 +46,7 @@ export default function MainLayout() {
         </button>
       )}
       <ChatArea />
+      <SettingsOverlay open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   )
 }
