@@ -31,10 +31,21 @@
 - Marked all 35 tasks as ~~completed~~ with checkmarks
 - Marked all milestone verification checklists as complete (M2-M5)
 
+### 5. Fixed Runtime ESM Import Bug
+- `electron-updater` is a CJS module — named ESM import (`import { autoUpdater }`) caused `SyntaxError` at startup
+- Fixed by using default import: `import electronUpdater from 'electron-updater'`
+- Added `*.tsbuildinfo` to `.gitignore`
+
+### 6. Built and Verified DMG
+- Successfully built `dist/cloak-0.1.0.dmg` (208MB) via `electron-builder --mac`
+- Verified dev mode launches without errors after all fixes
+
 ## Verification Results
 - **TypeScript:** Both `tsconfig.node.json` and `tsconfig.web.json` pass with 0 errors
 - **Tests:** 42/42 passing across 6 test files
 - **Build:** `electron-vite build` succeeds in 2.5s
+- **DMG:** `dist/cloak-0.1.0.dmg` (208MB) built successfully
+- **Dev launch:** App starts without errors
 
 ## Items That May Need Your Attention
 
