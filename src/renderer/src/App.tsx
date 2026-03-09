@@ -15,6 +15,8 @@ export default function App() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-pampas">
+      {/* drag region */}
+      <div className="fixed top-0 left-0 right-0 h-12 drag-region" />
       <div className="text-center space-y-4">
         <h1 className="text-3xl font-serif text-gray-800">Cloak</h1>
         <p className="text-cloudy">{status}</p>

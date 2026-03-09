@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
 @theme {
   --color-pampas: #f4f3ee;
   --color-terracotta: #c15f3c;
