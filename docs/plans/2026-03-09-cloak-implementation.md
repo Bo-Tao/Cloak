@@ -1164,7 +1164,7 @@ git commit -m "feat(m1): implement ClaudeService with stream-json child process 
 
 ---
 
-### Task 8: Implement IPC Bridge (Preload + Handlers)
+### ~~Task 8: Implement IPC Bridge (Preload + Handlers)~~ ✅
 
 **Files:**
 
@@ -1311,7 +1311,7 @@ git commit -m "feat(m1): implement IPC bridge with contextBridge and handlers"
 
 ---
 
-### Task 9: Validate stream-json Communication (E2E)
+### ~~Task 9: Validate stream-json Communication (E2E)~~ ✅
 
 **Files:**
 
@@ -1424,7 +1424,7 @@ git commit -m "feat(m1): validate stream-json communication with integration tes
 
 ---
 
-### Task 10: M1 Wrap-up — App Shell with CLI Status
+### ~~Task 10: M1 Wrap-up — App Shell with CLI Status~~ ✅
 
 **Files:**
 
@@ -1484,13 +1484,14 @@ git tag m1-complete
 
 ## M1 Verification Checklist
 
-- [ ] `pnpm dev` launches Electron window
-- [ ] Window shows correct CLI installation status
-- [ ] Window shows correct auth status
-- [ ] shadcn Button renders with Terracotta color
-- [ ] `scripts/test-stream-json.ts` receives and parses events from Claude CLI
-- [ ] All unit tests pass: `pnpm vitest run`
-- [ ] Minimum window size 800x600 enforced
+- [x] `pnpm dev` launches Electron window
+- [x] Window shows correct CLI installation status
+- [x] Window shows correct auth status
+- [x] shadcn Button renders with Terracotta color
+- [x] `scripts/test-stream-json.ts` receives and parses events from Claude CLI
+- [x] All unit tests pass: `pnpm vitest run` (20 tests)
+- [x] Minimum window size 800x600 enforced
+- [x] **Discovery:** `--verbose` flag required for stream-json with --print
 
 ---
 
