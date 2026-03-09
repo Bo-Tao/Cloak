@@ -8,6 +8,14 @@ import { getStore } from './services/config-store'
 
 const claudeService = new ClaudeService()
 
+function debounce<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
+  let timer: ReturnType<typeof setTimeout>
+  return ((...args: unknown[]) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), ms)
+  }) as T
+}
+
 async function createWindow(): Promise<BrowserWindow> {
   const store = await getStore()
   const windowConfig = store.get('window')
@@ -40,7 +48,23 @@ async function createWindow(): Promise<BrowserWindow> {
     return { action: 'deny' }
   })
 
-  // Save window bounds on close
+  // Debounced window bounds saving on resize/move
+  const saveBounds = debounce(async () => {
+    if (mainWindow.isDestroyed()) return
+    const bounds = mainWindow.getBounds()
+    const s = await getStore()
+    s.set('window', {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+    })
+  }, 500)
+
+  mainWindow.on('resize', saveBounds)
+  mainWindow.on('move', saveBounds)
+
+  // Also save on close
   mainWindow.on('close', async () => {
     const bounds = mainWindow.getBounds()
     const s = await getStore()
