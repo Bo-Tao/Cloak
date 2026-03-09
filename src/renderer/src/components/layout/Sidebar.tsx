@@ -65,8 +65,7 @@ export default function Sidebar() {
   )
 
   const handleAddProject = useCallback(async () => {
-    // Prompt user to enter a path (in a real implementation, we'd use dialog.showOpenDialog via IPC)
-    const path = prompt('Enter project path:')
+    const path = await window.electronAPI.app.selectFolder()
     if (!path) return
     try {
       await window.electronAPI.project.add(path)
@@ -74,8 +73,8 @@ export default function Sidebar() {
       setProjects(list as Project[])
       const added = (list as Project[]).find((p) => p.path === path)
       if (added) setActiveProject(added)
-    } catch (err) {
-      alert(`Failed to add project: ${err}`)
+    } catch {
+      // Failed to add project
     }
   }, [setProjects, setActiveProject])
 

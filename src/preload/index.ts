@@ -45,6 +45,7 @@ const api = {
   app: {
     checkCli: () => ipcRenderer.invoke(IPC.APP_CHECK_CLI),
     getAuthStatus: () => ipcRenderer.invoke(IPC.APP_AUTH_STATUS),
+    selectFolder: () => ipcRenderer.invoke(IPC.APP_SELECT_FOLDER) as Promise<string | null>,
   },
 }
 

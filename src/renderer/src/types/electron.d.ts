@@ -32,6 +32,7 @@ interface ElectronAPI {
       email: string | null
       authMethod: 'oauth' | 'api_billing' | null
     }>
+    selectFolder: () => Promise<string | null>
   }
 }
 

@@ -86,4 +86,5 @@ export const IPC = {
   CONFIG_SET: 'config:set',
   APP_CHECK_CLI: 'app:check-cli',
   APP_AUTH_STATUS: 'app:auth-status',
+  APP_SELECT_FOLDER: 'app:select-folder',
 } as const

@@ -121,6 +121,16 @@ export function registerIpcHandlers(claudeService: ClaudeService): void {
     }
   })
 
+  // === Dialogs ===
+  ipcMain.handle(IPC.APP_SELECT_FOLDER, async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Select Project Folder',
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
+  })
+
   // === Config ===
   ipcMain.handle(IPC.CONFIG_GET, async (_e, key: string) => {
     const store = await getStore()
