@@ -3,7 +3,7 @@ import { useSettingsStore } from '../../stores/settings-store'
 import { useSessionStore } from '../../stores/session-store'
 import { useProjectStore } from '../../stores/project-store'
 import { useChatStore } from '../../stores/chat-store'
-import type { Project } from '../../../../shared/types'
+import type { ChatMessage, Project } from '../../../../shared/types'
 
 export default function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useSettingsStore()
@@ -48,7 +48,7 @@ export default function Sidebar() {
       clearMessages()
       if (Array.isArray(messages)) {
         for (const msg of messages) {
-          useChatStore.getState().appendMessage(msg as Parameters<typeof useChatStore.getState>['0'] extends never ? never : any)
+          useChatStore.getState().appendMessage(msg as ChatMessage)
         }
       }
     },
