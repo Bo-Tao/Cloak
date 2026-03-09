@@ -1,6 +1,9 @@
 import { BrowserWindow } from 'electron'
-import { autoUpdater, UpdateInfo } from 'electron-updater'
+import electronUpdater from 'electron-updater'
 import { IPC } from '../../shared/types'
+
+const { autoUpdater } = electronUpdater
+type UpdateInfo = { version: string; releaseDate?: string }
 
 export class UpdateService {
   private updateAvailable = false
