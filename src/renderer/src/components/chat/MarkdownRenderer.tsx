@@ -138,7 +138,7 @@ const components: ComponentProps<typeof ReactMarkdown>['components'] = {
   table({ children }) {
     return (
       <div className="overflow-x-auto my-2">
-        <table className="min-w-full text-sm border-collapse border border-gray-200">
+        <table className="min-w-full text-sm border-collapse border border-border">
           {children}
         </table>
       </div>
@@ -146,13 +146,13 @@ const components: ComponentProps<typeof ReactMarkdown>['components'] = {
   },
   th({ children }) {
     return (
-      <th className="border border-gray-200 px-3 py-2 bg-gray-50 text-left font-medium">
+      <th className="border border-border px-3 py-2 bg-gray-50 text-left font-medium">
         {children}
       </th>
     )
   },
   td({ children }) {
-    return <td className="border border-gray-200 px-3 py-2">{children}</td>
+    return <td className="border border-border px-3 py-2">{children}</td>
   },
 }
 

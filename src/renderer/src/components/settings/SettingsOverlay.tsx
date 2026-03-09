@@ -89,7 +89,7 @@ export default function SettingsOverlay({ open, onClose }: Props) {
               <input
                 type="text"
                 placeholder="claude"
-                className="w-40 px-3 py-1.5 text-xs rounded-md border border-gray-200 focus:outline-none focus:border-terracotta"
+                className="w-40 px-3 py-1.5 text-xs rounded-md border border-border focus:outline-none focus:border-terracotta"
                 defaultValue=""
                 onBlur={(e) => {
                   window.electronAPI.config.set(

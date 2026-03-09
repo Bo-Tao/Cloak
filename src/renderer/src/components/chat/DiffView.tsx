@@ -11,8 +11,8 @@ export default function DiffView({ oldValue, newValue, fileName }: Props) {
   const [splitView, setSplitView] = useState(false)
 
   return (
-    <div className="rounded-lg overflow-hidden border border-gray-200">
-      <div className="flex items-center justify-between px-3 py-1.5 bg-gray-50 border-b border-gray-200">
+    <div className="rounded-lg overflow-hidden border border-border">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-gray-50 border-b border-border">
         {fileName && (
           <span className="text-xs font-mono text-gray-600 truncate">{fileName}</span>
         )}

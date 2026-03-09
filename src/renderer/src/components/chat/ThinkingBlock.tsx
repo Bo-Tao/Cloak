@@ -10,7 +10,7 @@ export default function ThinkingBlock({ content }: Props) {
   if (!content) return null
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="border border-border rounded-lg overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-2 px-3 py-2 text-xs text-cloudy hover:bg-gray-50 transition-colors"

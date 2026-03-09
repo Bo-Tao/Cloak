@@ -99,7 +99,7 @@ export default function Sidebar() {
         <div className="relative">
           <button
             onClick={() => setShowProjectMenu(!showProjectMenu)}
-            className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors truncate"
+            className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-md border border-border text-gray-700 hover:bg-gray-50 transition-colors truncate"
           >
             <span className="truncate">
               {activeProject?.name || 'Select project'}
@@ -139,7 +139,7 @@ export default function Sidebar() {
         {/* New session button */}
         <button
           onClick={handleNewSession}
-          className="w-full px-3 py-2 text-sm rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+          className="w-full px-3 py-2 text-sm rounded-md border border-border text-gray-600 hover:bg-gray-50 transition-colors"
         >
           + New Session
         </button>
@@ -153,7 +153,7 @@ export default function Sidebar() {
             placeholder="Search sessions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs rounded-md border border-gray-200 focus:outline-none focus:border-terracotta"
+            className="w-full px-3 py-1.5 text-xs rounded-md border border-border focus:outline-none focus:border-terracotta"
           />
         </div>
       )}
