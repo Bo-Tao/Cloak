@@ -1,8 +1,15 @@
 // Run with: pnpm exec tsx scripts/test-stream-json-input.ts
-// Tests bidirectional stdin/stdout communication with stream-json format
-// NOTE: Must unset CLAUDECODE env var if running inside Claude Code session
+// Best to run from a standalone terminal, NOT inside Claude Code session
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
+
+// Clean env: remove all Claude Code session markers
+const cleanEnv = { ...process.env }
+for (const key of Object.keys(cleanEnv)) {
+  if (key.startsWith('CLAUDE') || key.startsWith('ANTHROPIC_')) {
+    delete cleanEnv[key]
+  }
+}
 
 const proc = spawn(
   'claude',
@@ -16,13 +23,16 @@ const proc = spawn(
   ],
   {
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: (() => {
-      const env = { ...process.env }
-      delete env.CLAUDECODE
-      return env
-    })(),
+    env: cleanEnv,
   },
 )
+
+// Auto-kill after 30s
+const timeout = setTimeout(() => {
+  console.error('[timeout] Process did not complete within 30s, killing...')
+  proc.kill('SIGTERM')
+  process.exit(1)
+}, 30_000)
 
 const rl = createInterface({ input: proc.stdout! })
 rl.on('line', (line) => {
@@ -35,7 +45,10 @@ rl.on('line', (line) => {
 })
 
 proc.stderr?.on('data', (d) => console.error('[stderr]', d.toString()))
-proc.on('exit', (code) => console.log('[exit]', code))
+proc.on('exit', (code) => {
+  clearTimeout(timeout)
+  console.log('[exit]', code)
+})
 
 setTimeout(() => {
   const msg = JSON.stringify({
@@ -52,4 +65,4 @@ setTimeout(() => {
 setTimeout(() => {
   console.log('[closing stdin]')
   proc.stdin?.end()
-}, 15000)
+}, 20000)
