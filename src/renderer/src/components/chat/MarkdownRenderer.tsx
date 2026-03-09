@@ -108,7 +108,7 @@ function CopyButton({ text }: { text: string }) {
 
 function InlineCode({ children }: { children?: React.ReactNode }) {
   return (
-    <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-gray-800">
+    <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-text-primary">
       {children}
     </code>
   )
@@ -160,7 +160,7 @@ const MarkdownRenderer = memo(function MarkdownRenderer({ content }: Props) {
   if (!content) return null
 
   return (
-    <div className="prose prose-sm max-w-none text-gray-800 [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_blockquote]:border-l-terracotta">
+    <div className="prose prose-sm max-w-none text-text-primary [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_blockquote]:border-l-terracotta">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {content}
       </ReactMarkdown>

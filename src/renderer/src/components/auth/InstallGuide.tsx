@@ -7,12 +7,12 @@ export default function InstallGuide({ onRetry }: Props) {
     <div className="flex h-screen items-center justify-center bg-pampas">
       <div className="fixed top-0 left-0 right-0 h-12 drag-region" />
       <div className="text-center space-y-6 max-w-md px-6">
-        <h1 className="text-3xl font-serif text-gray-800">Cloak</h1>
+        <h1 className="text-3xl font-serif text-text-primary">Cloak</h1>
         <div className="space-y-3">
           <p className="text-gray-600">Claude Code CLI is not installed.</p>
-          <div className="bg-white rounded-lg border border-gray-200 p-4 text-left space-y-3">
+          <div className="bg-surface rounded-lg border border-border p-4 text-left space-y-3">
             <p className="text-sm text-gray-700 font-medium">Install Claude Code:</p>
-            <code className="block bg-gray-50 px-3 py-2 rounded text-sm font-mono text-gray-800">
+            <code className="block bg-gray-50 px-3 py-2 rounded text-sm font-mono text-text-primary">
               npm install -g @anthropic-ai/claude-code
             </code>
             <p className="text-xs text-cloudy">

@@ -107,7 +107,7 @@ export default function Sidebar() {
             <span className="text-gray-400 ml-1">▼</span>
           </button>
           {showProjectMenu && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-20 max-h-48 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border rounded-md shadow-lg z-20 max-h-48 overflow-y-auto">
               {projects.map((p) => (
                 <button
                   key={p.path}

@@ -73,7 +73,7 @@ export default function ToolCard({
   const showDiff = (toolName === 'Edit' || toolName === 'Write') && input.old_string !== undefined
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+    <div className="border border-gray-200 rounded-lg overflow-hidden bg-surface">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 transition-colors"

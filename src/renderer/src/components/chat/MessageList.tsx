@@ -12,7 +12,7 @@ export default function MessageList() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center space-y-2">
-          <h2 className="text-xl font-serif text-gray-700">Start a conversation</h2>
+          <h2 className="text-xl font-serif text-text-primary">Start a conversation</h2>
           <p className="text-sm text-cloudy">Send a message to Claude Code</p>
         </div>
       </div>
