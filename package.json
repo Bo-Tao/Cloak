@@ -1,6 +1,6 @@
 {
   "name": "cloak",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Cloak is an Claude Code GUI Desktop Application",
   "type": "module",
   "main": "./out/main/index.js",
