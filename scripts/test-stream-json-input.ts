@@ -3,13 +3,9 @@
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
 
-// Clean env: remove all Claude Code session markers
+// Only remove the nested session marker, keep auth/config vars
 const cleanEnv = { ...process.env }
-for (const key of Object.keys(cleanEnv)) {
-  if (key.startsWith('CLAUDE') || key.startsWith('ANTHROPIC_')) {
-    delete cleanEnv[key]
-  }
-}
+delete cleanEnv.CLAUDECODE
 
 const proc = spawn(
   'claude',
