@@ -57,7 +57,7 @@ function SessionItem({
       }}
       className={`text-left w-[calc(100%-16px)] pl-8 pr-2 py-1.5 text-sm transition-colors flex items-center justify-between mx-2 rounded-lg ${
         isActive
-          ? 'text-terracotta'
+          ? 'text-terracotta bg-black/5 dark:bg-white/5'
           : 'text-text-secondary hover:bg-black/5 dark:hover:bg-white/5'
       }`}
     >
@@ -93,17 +93,6 @@ function ProjectItem({
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(project.name)
   const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!menuOpen) return
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [menuOpen])
 
   const handleRename = async () => {
     if (renameValue.trim() && renameValue !== project.name) {
@@ -185,23 +174,23 @@ function ProjectItem({
       {menuOpen && (
         <div
           ref={menuRef}
-          className="absolute left-8 top-full z-30 bg-surface border border-border rounded-md shadow-lg py-1 min-w-[140px]"
+          className="absolute right-2 p-1 top-9 z-30 bg-pampas border border-border rounded-lg shadow-lg min-w-[140px]"
         >
           <button
             onClick={() => { handleOpenFolder(); setMenuOpen(false) }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5"
+            className="w-full rounded-md flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5"
           >
             <FolderOpen size={14} /> 打开文件夹
           </button>
           <button
             onClick={() => { setIsRenaming(true); setRenameValue(project.name); setMenuOpen(false) }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5"
+            className="w-full rounded-md flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5"
           >
             <Pencil size={14} /> 重命名
           </button>
           <button
             onClick={() => { handleRemove(); setMenuOpen(false) }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+            className="w-full rounded-md flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5"
           >
             <Trash2 size={14} /> 删除项目
           </button>
