@@ -55,17 +55,17 @@ function SessionItem({
         e.preventDefault()
         onDelete()
       }}
-      className={`text-left pl-8 pr-4 py-1.5 text-sm transition-colors flex items-center justify-between mx-2 rounded-lg ${
+      className={`text-left w-[calc(100%-16px)] pl-8 pr-2 py-1.5 text-sm transition-colors flex items-center justify-between mx-2 rounded-lg ${
         isActive
           ? 'text-terracotta'
           : 'text-text-secondary hover:bg-black/5 dark:hover:bg-white/5'
       }`}
     >
-      <span className="truncate text-xs">{session.title}</span>
+      <span className="truncate text-xs min-w-0 flex-1">{session.title}</span>
       {session.lastActive && (
-        <span className="text-[10px] text-cloudy shrink-0 ml-2">
+        <div className="text-[10px] w-10 text-cloudy shrink-0 ml-1 text-right">
           {formatRelativeTime(session.lastActive)}
-        </span>
+        </div>
       )}
     </button>
   )
@@ -140,7 +140,7 @@ function ProjectItem({
   return (
     <div className="relative">
       <div
-        className={`flex items-center gap-2 px-4 py-1.5 cursor-pointer select-none transition-colors mx-2 rounded-lg ${
+        className={`flex items-center gap-2 px-2 py-1.5 cursor-pointer select-none transition-colors mx-2 rounded-lg ${
           isHovered ? 'bg-black/5 dark:bg-white/5' : ''
         }`}
         onMouseEnter={() => setIsHovered(true)}
@@ -372,12 +372,9 @@ export default function Sidebar() {
         style={{ width: sidebarCollapsed ? 0 : sidebarWidth }}
       >
         <aside
-          className="flex flex-col bg-surface rounded-xl overflow-hidden pt-8 shadow-sm"
+          className="flex flex-col m-2 bg-pampas border border-[#F0EEE6] rounded-xl overflow-hidden pt-8 shadow-sm"
           style={{
-            width: sidebarWidth - 8,
             height: 'calc(100% - 16px)',
-            margin: 8,
-            marginRight: 0,
           }}
         >
           <div className="flex items-center justify-between px-4 py-2">
@@ -391,7 +388,7 @@ export default function Sidebar() {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {projects.map((project) => (
+            {projects.map(project => (
               <ProjectItem
                 key={project.path}
                 project={project}
@@ -399,7 +396,7 @@ export default function Sidebar() {
                 isCollapsed={!!collapsedProjects[project.path]}
                 onToggleCollapse={() => toggleProjectCollapsed(project.path)}
                 activeSessionId={activeSessionId}
-                onSelectSession={(id) => handleSelectSession(id, project.path)}
+                onSelectSession={id => handleSelectSession(id, project.path)}
                 onDeleteSession={handleDeleteSession}
               />
             ))}
