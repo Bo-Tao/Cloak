@@ -7,7 +7,8 @@ import { PanelLeftDashed } from 'lucide-react'
 import type { ChatMessage, Project } from '../../../../shared/types'
 
 export default function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar } = useSettingsStore()
+  const { sidebarCollapsed, toggleSidebar, sidebarWidth, setSidebarWidth } = useSettingsStore()
+  const [isResizing, setIsResizing] = useState(false)
   const { sessions, activeSessionId, setSessions, setActive, removeSession } =
     useSessionStore()
   const { projects, activeProject, setProjects, setActive: setActiveProject } =
@@ -94,6 +95,39 @@ export default function Sidebar() {
     }
   }, [setProjects, setActiveProject])
 
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      const startX = e.clientX
+      const startWidth = sidebarWidth
+
+      setIsResizing(true)
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+
+      const onMouseMove = (ev: MouseEvent) => {
+        const newWidth = startWidth + (ev.clientX - startX)
+        setSidebarWidth(newWidth)
+      }
+
+      const onMouseUp = () => {
+        setIsResizing(false)
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+        document.removeEventListener('mousemove', onMouseMove)
+        document.removeEventListener('mouseup', onMouseUp)
+      }
+
+      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mouseup', onMouseUp)
+    },
+    [sidebarWidth, setSidebarWidth],
+  )
+
+  const handleDoubleClick = useCallback(() => {
+    setSidebarWidth(280)
+  }, [setSidebarWidth])
+
   const filteredSessions = searchQuery
     ? sessions.filter((s) =>
         s.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -102,12 +136,12 @@ export default function Sidebar() {
 
   return (
     <div
-      className="shrink-0 h-full overflow-hidden transition-[width] duration-200"
-      style={{ width: sidebarCollapsed ? 0 : 256 }}
+      className={`shrink-0 h-full overflow-hidden relative ${isResizing ? '' : 'transition-[width] duration-200'}`}
+      style={{ width: sidebarCollapsed ? 0 : sidebarWidth }}
     >
     <aside
       className="flex flex-col bg-surface rounded-xl overflow-hidden"
-      style={{ width: 240, height: 'calc(100% - 16px)', margin: 8, marginRight: 0 }}
+      style={{ width: sidebarWidth - 8, height: 'calc(100% - 16px)', margin: 8, marginRight: 0 }}
     >
       {/* Drag region for title bar */}
       <div className="h-10 flex items-center pl-24 px-3 shrink-0 drag-region">
@@ -249,6 +283,17 @@ export default function Sidebar() {
         </div>
       )}
     </aside>
+
+      {/* Drag handle */}
+      {!sidebarCollapsed && (
+        <div
+          className="absolute top-0 right-0 w-1 h-full cursor-col-resize group z-10 flex items-center justify-center"
+          onMouseDown={handleMouseDown}
+          onDoubleClick={handleDoubleClick}
+        >
+          <div className={`w-0.5 h-full transition-colors ${isResizing ? 'bg-terracotta' : 'bg-transparent group-hover:bg-border'}`} />
+        </div>
+      )}
     </div>
   )
 }

@@ -4,6 +4,7 @@ interface SettingsState {
   theme: 'light' | 'dark' | 'system'
   fontSize: number
   sidebarCollapsed: boolean
+  sidebarWidth: number
   autoAccept: boolean
   autoAcceptConfirmed: boolean
 
@@ -11,6 +12,7 @@ interface SettingsState {
   setFontSize: (size: number) => void
   toggleSidebar: () => void
   setSidebarCollapsed: (collapsed: boolean) => void
+  setSidebarWidth: (width: number) => void
   setAutoAccept: (enabled: boolean) => void
   confirmAutoAccept: () => void
 }
@@ -19,6 +21,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   theme: 'system',
   fontSize: 14,
   sidebarCollapsed: false,
+  sidebarWidth: 280,
   autoAccept: false,
   autoAcceptConfirmed: false,
 
@@ -42,6 +45,12 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     }),
 
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+
+  setSidebarWidth: (width) => {
+    const clamped = Math.max(240, Math.min(520, width))
+    set({ sidebarWidth: clamped })
+    window.electronAPI.config.set('sidebarWidth', clamped)
+  },
 
   setAutoAccept: (enabled) => {
     set({ autoAccept: enabled })
