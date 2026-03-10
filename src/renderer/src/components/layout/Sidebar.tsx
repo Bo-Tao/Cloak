@@ -144,7 +144,11 @@ export default function Sidebar() {
               onClick={toggleSidebar}
               aria-label={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
             >
-              <PanelLeftDashed size={16} />
+              <PanelLeftDashed
+                size={16}
+                className="transition-transform duration-300"
+                style={{ transform: sidebarCollapsed ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              />
             </button>
           </Tooltip>
         </div>
