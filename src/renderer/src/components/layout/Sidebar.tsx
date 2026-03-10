@@ -51,13 +51,6 @@ export default function Sidebar() {
     })
   }, [activeProject?.path])
 
-  const handleNewSession = useCallback(() => {
-    if (!activeProject) return
-    const newId = crypto.randomUUID()
-    setActive(newId)
-    clearMessages()
-  }, [activeProject, setActive, clearMessages])
-
   const handleSelectSession = useCallback(
     async (sessionId: string) => {
       setActive(sessionId)
@@ -166,22 +159,6 @@ export default function Sidebar() {
             marginRight: 0,
           }}
         >
-          {/* Top action links */}
-          <div className="px-4 pb-3 flex items-center gap-3">
-            <button
-              onClick={() => clearMessages()}
-              className="text-sm text-text-secondary hover:text-text-primary transition-colors"
-            >
-              清除历史
-            </button>
-            <button
-              onClick={handleNewSession}
-              className="text-sm text-text-secondary hover:text-text-primary transition-colors"
-            >
-              新建聊天
-            </button>
-          </div>
-
           {/* Project selector */}
           <div className="px-3 pb-2 space-y-2">
             <div className="relative">
