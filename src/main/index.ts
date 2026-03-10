@@ -32,7 +32,7 @@ async function createWindow(): Promise<BrowserWindow> {
     show: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 16, y: 16 },
+    trafficLightPosition: { x: 20, y: 20 },
     webPreferences: {
       preload: fileURLToPath(new URL('../preload/index.mjs', import.meta.url)),
       contextIsolation: true,

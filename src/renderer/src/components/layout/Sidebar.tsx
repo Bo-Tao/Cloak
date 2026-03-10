@@ -3,6 +3,7 @@ import { useSettingsStore } from '../../stores/settings-store'
 import { useSessionStore } from '../../stores/session-store'
 import { useProjectStore } from '../../stores/project-store'
 import { useChatStore } from '../../stores/chat-store'
+import { PanelLeftDashed } from 'lucide-react'
 import type { ChatMessage, Project } from '../../../../shared/types'
 
 export default function Sidebar() {
@@ -100,13 +101,39 @@ export default function Sidebar() {
     : sessions
 
   return (
+    <div
+      className="shrink-0 h-full overflow-hidden transition-[width] duration-200"
+      style={{ width: sidebarCollapsed ? 0 : 256 }}
+    >
     <aside
-      className="flex flex-col border-r border-border bg-surface transition-[width] duration-200 overflow-hidden shrink-0"
-      style={{ width: sidebarCollapsed ? 0 : 240 }}
+      className="flex flex-col bg-surface rounded-xl overflow-hidden"
+      style={{ width: 240, height: 'calc(100% - 16px)', margin: 8, marginRight: 0 }}
     >
       {/* Drag region for title bar */}
-      <div className="h-12 flex items-center px-4 shrink-0 drag-region">
-        <span className="font-serif text-lg text-text-primary no-drag">Cloak</span>
+      <div className="h-10 flex items-center pl-24 px-3 shrink-0 drag-region">
+        <button
+          onClick={toggleSidebar}
+          className="no-drag p-1.5 text-text-secondary hover:text-text-primary transition-colors rounded-md hover:bg-black/5"
+          title="收起侧边栏"
+        >
+          <PanelLeftDashed size={16} />
+        </button>
+      </div>
+
+      {/* Top action links */}
+      <div className="px-4 pb-3 flex items-center gap-3">
+        <button
+          onClick={() => clearMessages()}
+          className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+        >
+          清除历史
+        </button>
+        <button
+          onClick={handleNewSession}
+          className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+        >
+          新建聊天
+        </button>
       </div>
 
       {/* Project selector */}
@@ -150,14 +177,6 @@ export default function Sidebar() {
             </div>
           )}
         </div>
-
-        {/* New session button */}
-        <button
-          onClick={handleNewSession}
-          className="w-full px-3 py-2 text-sm rounded-md border border-border text-gray-600 hover:bg-gray-50 transition-colors"
-        >
-          + New Session
-        </button>
       </div>
 
       {/* Session search */}
@@ -213,8 +232,8 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom controls */}
-      <div className="border-t border-border p-3 shrink-0 space-y-2">
-        {updateInfo && (
+      {updateInfo && (
+        <div className="border-t border-border p-3 shrink-0">
           <button
             onClick={() => {
               if (updateInfo.downloaded) {
@@ -227,17 +246,10 @@ export default function Sidebar() {
               ? `v${updateInfo.version} ready — click to restart`
               : `v${updateInfo.version} available — downloading...`}
           </button>
-        )}
-        <div className="flex items-center justify-between">
-          <button
-            className="text-xs text-cloudy hover:text-gray-600 transition-colors"
-            onClick={toggleSidebar}
-          >
-            Collapse
-          </button>
         </div>
-      </div>
+      )}
     </aside>
+    </div>
   )
 }
 
