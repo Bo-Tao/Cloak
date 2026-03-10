@@ -92,7 +92,7 @@ export default function InputArea() {
       )}
 
       {/* Card container */}
-      <div className="max-w-3xl mx-auto rounded-2xl border border-border bg-white shadow-sm">
+      <div className="max-w-3xl mx-auto rounded-2xl border border-border bg-surface shadow-sm">
         <textarea
           ref={textareaRef}
           value={text}
