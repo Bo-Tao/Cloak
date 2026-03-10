@@ -77,30 +77,30 @@ describe('useChatStore', () => {
 
 describe('useSessionStore', () => {
   beforeEach(() => {
-    useSessionStore.setState({ sessions: [], activeSessionId: null })
+    useSessionStore.setState({ sessionsByProject: {}, activeSessionId: null })
   })
 
-  it('sets sessions', () => {
+  it('sets sessions for project', () => {
     const sessions: SessionMeta[] = [
       { id: 's1', title: 'Test', projectPath: '/p', lastActive: '', messageCount: 5 },
     ]
-    useSessionStore.getState().setSessions(sessions)
-    expect(useSessionStore.getState().sessions).toHaveLength(1)
+    useSessionStore.getState().setSessionsForProject('/p', sessions)
+    expect(useSessionStore.getState().sessionsByProject['/p']).toHaveLength(1)
   })
 
   it('adds a session', () => {
     const s: SessionMeta = { id: 's2', title: 'New', projectPath: '/p', lastActive: '', messageCount: 0 }
     useSessionStore.getState().addSession(s)
-    expect(useSessionStore.getState().sessions[0].id).toBe('s2')
+    expect(useSessionStore.getState().sessionsByProject['/p']![0].id).toBe('s2')
   })
 
   it('removes a session and clears active if matching', () => {
     useSessionStore.setState({
-      sessions: [{ id: 's1', title: 'T', projectPath: '/p', lastActive: '', messageCount: 0 }],
+      sessionsByProject: { '/p': [{ id: 's1', title: 'T', projectPath: '/p', lastActive: '', messageCount: 0 }] },
       activeSessionId: 's1',
     })
     useSessionStore.getState().removeSession('s1')
-    expect(useSessionStore.getState().sessions).toHaveLength(0)
+    expect(useSessionStore.getState().sessionsByProject['/p']).toHaveLength(0)
     expect(useSessionStore.getState().activeSessionId).toBeNull()
   })
 })

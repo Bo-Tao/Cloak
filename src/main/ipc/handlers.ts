@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, dialog } from 'electron'
+import { ipcMain, BrowserWindow, dialog, shell } from 'electron'
 import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join, basename } from 'node:path'
@@ -120,6 +120,26 @@ export function registerIpcHandlers(claudeService: ClaudeService, updateService?
     } catch {
       return null
     }
+  })
+
+  ipcMain.handle(IPC.PROJECT_REMOVE, async (_e, projectPath: string) => {
+    const store = await getStore()
+    const projects = { ...store.get('projects') }
+    delete projects[projectPath]
+    store.set('projects', projects)
+  })
+
+  ipcMain.handle(IPC.PROJECT_RENAME, async (_e, projectPath: string, newName: string) => {
+    const store = await getStore()
+    const projects = { ...store.get('projects') }
+    if (projects[projectPath]) {
+      projects[projectPath] = { ...projects[projectPath], name: newName }
+      store.set('projects', projects)
+    }
+  })
+
+  ipcMain.handle(IPC.SHELL_OPEN_PATH, async (_e, path: string) => {
+    await shell.openPath(path)
   })
 
   // === Dialogs ===

@@ -34,6 +34,9 @@ const api = {
   project: {
     list: () => ipcRenderer.invoke(IPC.PROJECT_LIST),
     add: (path: string) => ipcRenderer.invoke(IPC.PROJECT_ADD, path),
+    remove: (path: string) => ipcRenderer.invoke(IPC.PROJECT_REMOVE, path),
+    rename: (path: string, newName: string) =>
+      ipcRenderer.invoke(IPC.PROJECT_RENAME, path, newName),
     getClaudeMd: (path: string) =>
       ipcRenderer.invoke(IPC.PROJECT_CLAUDE_MD, path),
   },
@@ -48,6 +51,7 @@ const api = {
     selectFolder: () => ipcRenderer.invoke(IPC.APP_SELECT_FOLDER) as Promise<string | null>,
     checkUpdate: () => ipcRenderer.invoke(IPC.APP_CHECK_UPDATE) as Promise<{ available: boolean; version?: string }>,
     installUpdate: () => ipcRenderer.invoke(IPC.APP_INSTALL_UPDATE),
+    openPath: (path: string) => ipcRenderer.invoke(IPC.SHELL_OPEN_PATH, path),
     onUpdateAvailable: (cb: (info: { version: string }) => void) => {
       const handler = (_: unknown, data: { version: string }) => cb(data)
       ipcRenderer.on(IPC.APP_UPDATE_AVAILABLE, handler)

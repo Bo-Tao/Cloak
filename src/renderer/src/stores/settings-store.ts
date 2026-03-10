@@ -7,6 +7,8 @@ interface SettingsState {
   sidebarWidth: number
   autoAccept: boolean
   autoAcceptConfirmed: boolean
+  collapsedProjects: Record<string, boolean>
+  settingsOpen: boolean
 
   setTheme: (theme: 'light' | 'dark' | 'system') => void
   setFontSize: (size: number) => void
@@ -15,6 +17,9 @@ interface SettingsState {
   setSidebarWidth: (width: number) => void
   setAutoAccept: (enabled: boolean) => void
   confirmAutoAccept: () => void
+  toggleProjectCollapsed: (projectPath: string) => void
+  toggleSettings: () => void
+  setSettingsOpen: (open: boolean) => void
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -24,6 +29,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   sidebarWidth: 280,
   autoAccept: false,
   autoAcceptConfirmed: false,
+  collapsedProjects: {},
+  settingsOpen: false,
 
   setTheme: (theme) => {
     set({ theme })
@@ -58,4 +65,22 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   },
 
   confirmAutoAccept: () => set({ autoAcceptConfirmed: true }),
+
+  toggleProjectCollapsed: (projectPath) =>
+    set((state) => {
+      const collapsed = { ...state.collapsedProjects }
+      collapsed[projectPath] = !collapsed[projectPath]
+      window.electronAPI.config.set('collapsedProjects', collapsed)
+      return { collapsedProjects: collapsed }
+    }),
+
+  toggleSettings: () => set((state) => ({ settingsOpen: !state.settingsOpen })),
+  setSettingsOpen: (open) => set({ settingsOpen: open }),
 }))
+
+// Hydrate persisted collapsedProjects
+window.electronAPI.config.get('collapsedProjects').then((val) => {
+  if (val && typeof val === 'object') {
+    useSettingsStore.setState({ collapsedProjects: val as Record<string, boolean> })
+  }
+})

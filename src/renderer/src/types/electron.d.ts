@@ -15,6 +15,8 @@ interface ElectronAPI {
   project: {
     list: () => Promise<unknown[]>
     add: (path: string) => Promise<void>
+    remove: (path: string) => Promise<void>
+    rename: (path: string, newName: string) => Promise<void>
     getClaudeMd: (path: string) => Promise<string | null>
   }
   config: {
@@ -37,6 +39,7 @@ interface ElectronAPI {
     installUpdate: () => Promise<void>
     onUpdateAvailable: (cb: (info: { version: string }) => void) => () => void
     onUpdateDownloaded: (cb: (info: { version: string }) => void) => () => void
+    openPath: (path: string) => Promise<void>
   }
 }
 

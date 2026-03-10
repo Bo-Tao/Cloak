@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useSettingsStore } from '../../stores/settings-store'
 import Sidebar from './Sidebar'
 import ChatArea from '../chat/ChatArea'
 import SettingsOverlay from '../settings/SettingsOverlay'
 
 export default function MainLayout() {
-  const { setSidebarCollapsed } = useSettingsStore()
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const { setSidebarCollapsed, settingsOpen, setSettingsOpen } = useSettingsStore()
 
   // Auto-collapse sidebar when window becomes narrow
   useEffect(() => {
@@ -25,7 +24,7 @@ export default function MainLayout() {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === ',') {
         e.preventDefault()
-        setSettingsOpen((prev) => !prev)
+        useSettingsStore.getState().toggleSettings()
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
         e.preventDefault()

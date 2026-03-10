@@ -2,29 +2,46 @@ import { create } from 'zustand'
 import type { SessionMeta } from '../../../shared/types'
 
 interface SessionState {
-  sessions: SessionMeta[]
+  sessionsByProject: Record<string, SessionMeta[]>
   activeSessionId: string | null
 
-  setSessions: (sessions: SessionMeta[]) => void
+  setSessionsForProject: (projectPath: string, sessions: SessionMeta[]) => void
   setActive: (id: string | null) => void
   addSession: (session: SessionMeta) => void
   removeSession: (id: string) => void
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
-  sessions: [],
+  sessionsByProject: {},
   activeSessionId: null,
 
-  setSessions: (sessions) => set({ sessions }),
+  setSessionsForProject: (projectPath, sessions) =>
+    set((state) => ({
+      sessionsByProject: { ...state.sessionsByProject, [projectPath]: sessions },
+    })),
 
   setActive: (id) => set({ activeSessionId: id }),
 
   addSession: (session) =>
-    set((state) => ({ sessions: [session, ...state.sessions] })),
+    set((state) => {
+      const existing = state.sessionsByProject[session.projectPath] || []
+      return {
+        sessionsByProject: {
+          ...state.sessionsByProject,
+          [session.projectPath]: [session, ...existing],
+        },
+      }
+    }),
 
   removeSession: (id) =>
-    set((state) => ({
-      sessions: state.sessions.filter((s) => s.id !== id),
-      activeSessionId: state.activeSessionId === id ? null : state.activeSessionId,
-    })),
+    set((state) => {
+      const updated: Record<string, SessionMeta[]> = {}
+      for (const [path, sessions] of Object.entries(state.sessionsByProject)) {
+        updated[path] = sessions.filter((s) => s.id !== id)
+      }
+      return {
+        sessionsByProject: updated,
+        activeSessionId: state.activeSessionId === id ? null : state.activeSessionId,
+      }
+    }),
 }))

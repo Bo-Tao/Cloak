@@ -1,30 +1,252 @@
-import { PanelLeftDashed } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
-import type { ChatMessage, Project } from '../../../../shared/types'
+import {
+  ChevronDown,
+  ChevronRight,
+  Ellipsis,
+  Folder,
+  FolderOpen,
+  FolderPlus,
+  PanelLeftDashed,
+  Pencil,
+  Settings,
+  SquarePen,
+  Trash2,
+} from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ChatMessage, Project, SessionMeta } from '../../../../shared/types'
 import { useChatStore } from '../../stores/chat-store'
 import { useProjectStore } from '../../stores/project-store'
 import { useSessionStore } from '../../stores/session-store'
 import { useSettingsStore } from '../../stores/settings-store'
 import Tooltip from '../ui/tooltip'
 
-export default function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar, sidebarWidth, setSidebarWidth } = useSettingsStore()
-  const [isResizing, setIsResizing] = useState(false)
-  const { sessions, activeSessionId, setSessions, setActive, removeSession } = useSessionStore()
-  const { projects, activeProject, setProjects, setActive: setActiveProject } = useProjectStore()
-  const { clearMessages } = useChatStore()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showProjectMenu, setShowProjectMenu] = useState(false)
-  const [updateInfo, setUpdateInfo] = useState<{ version: string; downloaded: boolean } | null>(
-    null,
+function formatRelativeTime(iso: string): string {
+  try {
+    const diff = Date.now() - new Date(iso).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return '刚刚'
+    if (mins < 60) return `${mins} 分钟`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours} 小时`
+    const days = Math.floor(hours / 24)
+    if (days < 7) return `${days} 天`
+    const weeks = Math.floor(days / 7)
+    if (weeks < 5) return `${weeks} 周`
+    return new Date(iso).toLocaleDateString()
+  } catch {
+    return ''
+  }
+}
+
+function SessionItem({
+  session,
+  isActive,
+  onSelect,
+  onDelete,
+}: {
+  session: SessionMeta
+  isActive: boolean
+  onSelect: () => void
+  onDelete: () => void
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        onDelete()
+      }}
+      className={`w-full text-left pl-8 pr-4 py-1.5 text-sm transition-colors flex items-center justify-between ${
+        isActive
+          ? 'text-terracotta'
+          : 'text-text-secondary hover:bg-black/5 dark:hover:bg-white/5'
+      }`}
+    >
+      <span className="truncate text-xs">{session.title}</span>
+      {session.lastActive && (
+        <span className="text-[10px] text-cloudy shrink-0 ml-2">
+          {formatRelativeTime(session.lastActive)}
+        </span>
+      )}
+    </button>
   )
+}
+
+function ProjectItem({
+  project,
+  sessions,
+  isCollapsed,
+  onToggleCollapse,
+  activeSessionId,
+  onSelectSession,
+  onDeleteSession,
+}: {
+  project: Project
+  sessions: SessionMeta[]
+  isCollapsed: boolean
+  onToggleCollapse: () => void
+  activeSessionId: string | null
+  onSelectSession: (id: string) => void
+  onDeleteSession: (id: string) => void
+}) {
+  const [isHovered, setIsHovered] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [isRenaming, setIsRenaming] = useState(false)
+  const [renameValue, setRenameValue] = useState(project.name)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
+
+  const handleRename = async () => {
+    if (renameValue.trim() && renameValue !== project.name) {
+      await window.electronAPI.project.rename(project.path, renameValue.trim())
+      const list = await window.electronAPI.project.list()
+      useProjectStore.getState().setProjects(list as Project[])
+    }
+    setIsRenaming(false)
+  }
+
+  const handleRemove = async () => {
+    if (!confirm(`确认从列表移除项目 "${project.name}"？`)) return
+    await window.electronAPI.project.remove(project.path)
+    const list = await window.electronAPI.project.list()
+    useProjectStore.getState().setProjects(list as Project[])
+  }
+
+  const handleOpenFolder = () => {
+    window.electronAPI.app.openPath(project.path)
+  }
+
+  const handleNewSession = async () => {
+    const sessionId = await window.electronAPI.session.create(project.path)
+    useSessionStore.getState().setActive(sessionId)
+    useChatStore.getState().clearMessages()
+    const list = await window.electronAPI.session.list(project.path)
+    useSessionStore.getState().setSessionsForProject(project.path, list as SessionMeta[])
+  }
+
+  const FolderIcon = isHovered
+    ? (isCollapsed ? ChevronRight : ChevronDown)
+    : (isCollapsed ? Folder : FolderOpen)
+
+  return (
+    <div className="relative">
+      <div
+        className={`flex items-center gap-2 px-4 py-1.5 cursor-pointer select-none transition-colors ${
+          isHovered ? 'bg-black/5 dark:bg-white/5' : ''
+        }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => { if (!menuOpen) setIsHovered(false) }}
+        onClick={onToggleCollapse}
+      >
+        <FolderIcon size={16} className="shrink-0 text-text-secondary" />
+        {isRenaming ? (
+          <input
+            autoFocus
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onBlur={handleRename}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleRename()
+              if (e.key === 'Escape') setIsRenaming(false)
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 text-sm bg-transparent border-b border-terracotta outline-none min-w-0"
+          />
+        ) : (
+          <span className="flex-1 text-sm truncate">{project.name}</span>
+        )}
+        {isHovered && !isRenaming && (
+          <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 text-text-secondary"
+            >
+              <Ellipsis size={14} />
+            </button>
+            <button
+              onClick={handleNewSession}
+              className="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 text-text-secondary"
+            >
+              <SquarePen size={14} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {menuOpen && (
+        <div
+          ref={menuRef}
+          className="absolute left-8 top-full z-30 bg-surface border border-border rounded-md shadow-lg py-1 min-w-[140px]"
+        >
+          <button
+            onClick={() => { handleOpenFolder(); setMenuOpen(false) }}
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            <FolderOpen size={14} /> 打开文件夹
+          </button>
+          <button
+            onClick={() => { setIsRenaming(true); setRenameValue(project.name); setMenuOpen(false) }}
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            <Pencil size={14} /> 重命名
+          </button>
+          <button
+            onClick={() => { handleRemove(); setMenuOpen(false) }}
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+          >
+            <Trash2 size={14} /> 删除项目
+          </button>
+        </div>
+      )}
+
+      <div
+        className="overflow-hidden transition-all duration-200"
+        style={{
+          maxHeight: isCollapsed ? 0 : `${Math.max(sessions.length, 1) * 40}px`,
+          opacity: isCollapsed ? 0 : 1,
+        }}
+      >
+        {sessions.length === 0 ? (
+          <p className="text-xs text-cloudy pl-8 py-1">无线程</p>
+        ) : (
+          sessions.map((session) => (
+            <SessionItem
+              key={session.id}
+              session={session}
+              isActive={activeSessionId === session.id}
+              onSelect={() => onSelectSession(session.id)}
+              onDelete={() => onDeleteSession(session.id)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default function Sidebar() {
+  const { sidebarCollapsed, toggleSidebar, sidebarWidth, setSidebarWidth, collapsedProjects, toggleProjectCollapsed, toggleSettings } = useSettingsStore()
+  const [isResizing, setIsResizing] = useState(false)
+  const { sessionsByProject, activeSessionId, setSessionsForProject, setActive, removeSession } = useSessionStore()
+  const { projects, setProjects, setActive: setActiveProject } = useProjectStore()
+  const { clearMessages } = useChatStore()
+  const [updateInfo, setUpdateInfo] = useState<{ version: string; downloaded: boolean } | null>(null)
 
   // Listen for update events
   useEffect(() => {
-    const cleanupAvailable = window.electronAPI.app.onUpdateAvailable(info => {
+    const cleanupAvailable = window.electronAPI.app.onUpdateAvailable((info) => {
       setUpdateInfo({ version: info.version, downloaded: false })
     })
-    const cleanupDownloaded = window.electronAPI.app.onUpdateDownloaded(info => {
+    const cleanupDownloaded = window.electronAPI.app.onUpdateDownloaded((info) => {
       setUpdateInfo({ version: info.version, downloaded: true })
     })
     return () => {
@@ -35,45 +257,23 @@ export default function Sidebar() {
 
   // Load projects on mount
   useEffect(() => {
-    window.electronAPI.project.list().then(list => {
-      setProjects(list as Project[])
-      if (list.length > 0 && !activeProject) {
-        setActiveProject(list[0] as Project)
+    window.electronAPI.project.list().then((list) => {
+      const projectList = list as Project[]
+      setProjects(projectList)
+      if (projectList.length > 0) {
+        setActiveProject(projectList[0])
       }
     })
   }, [])
 
-  // Load sessions when active project changes
+  // Load sessions for all projects
   useEffect(() => {
-    if (!activeProject) return
-    window.electronAPI.session.list(activeProject.path).then(list => {
-      setSessions(list as typeof sessions)
-    })
-  }, [activeProject?.path])
-
-  const handleSelectSession = useCallback(
-    async (sessionId: string) => {
-      setActive(sessionId)
-      const messages = await window.electronAPI.session.load(sessionId)
-      // Messages will be loaded into chat store via the load mechanism
-      clearMessages()
-      if (Array.isArray(messages)) {
-        for (const msg of messages) {
-          useChatStore.getState().appendMessage(msg as ChatMessage)
-        }
-      }
-    },
-    [setActive, clearMessages],
-  )
-
-  const handleDeleteSession = useCallback(
-    async (sessionId: string) => {
-      if (!confirm('Delete this session?')) return
-      await window.electronAPI.session.delete(sessionId)
-      removeSession(sessionId)
-    },
-    [removeSession],
-  )
+    for (const project of projects) {
+      window.electronAPI.session.list(project.path).then((list) => {
+        setSessionsForProject(project.path, list as SessionMeta[])
+      })
+    }
+  }, [projects])
 
   const handleAddProject = useCallback(async () => {
     const path = await window.electronAPI.app.selectFolder()
@@ -82,12 +282,37 @@ export default function Sidebar() {
       await window.electronAPI.project.add(path)
       const list = await window.electronAPI.project.list()
       setProjects(list as Project[])
-      const added = (list as Project[]).find(p => p.path === path)
-      if (added) setActiveProject(added)
     } catch {
       // Failed to add project
     }
-  }, [setProjects, setActiveProject])
+  }, [setProjects])
+
+  const handleSelectSession = useCallback(
+    async (sessionId: string, projectPath: string) => {
+      const targetProject = projects.find((p) => p.path === projectPath)
+      if (targetProject) {
+        setActiveProject(targetProject)
+      }
+      setActive(sessionId)
+      clearMessages()
+      const messages = await window.electronAPI.session.load(sessionId)
+      if (Array.isArray(messages)) {
+        for (const msg of messages) {
+          useChatStore.getState().appendMessage(msg as ChatMessage)
+        }
+      }
+    },
+    [projects, setActiveProject, setActive, clearMessages],
+  )
+
+  const handleDeleteSession = useCallback(
+    async (sessionId: string) => {
+      if (!confirm('确认删除此会话？')) return
+      await window.electronAPI.session.delete(sessionId)
+      removeSession(sessionId)
+    },
+    [removeSession],
+  )
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -122,13 +347,8 @@ export default function Sidebar() {
     setSidebarWidth(280)
   }, [setSidebarWidth])
 
-  const filteredSessions = searchQuery
-    ? sessions.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    : sessions
-
   return (
     <>
-      {/* Drag region for title bar with toggle button as no-drag child */}
       <div className="h-12 fixed z-50 w-full shrink-0 drag-region flex items-center pl-24">
         <div className="no-drag mt-1.5">
           <Tooltip label="切换边栏" shortcut="⌘B">
@@ -146,6 +366,7 @@ export default function Sidebar() {
           </Tooltip>
         </div>
       </div>
+
       <div
         className={`shrink-0 h-full overflow-hidden relative ${isResizing ? '' : 'transition-[width] duration-300'}`}
         style={{ width: sidebarCollapsed ? 0 : sidebarWidth }}
@@ -159,98 +380,31 @@ export default function Sidebar() {
             marginRight: 0,
           }}
         >
-          {/* Project selector */}
-          <div className="px-3 pb-2 space-y-2">
-            <div className="relative">
-              <button
-                onClick={() => setShowProjectMenu(!showProjectMenu)}
-                className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-md border border-border text-gray-700 hover:bg-gray-50 transition-colors truncate"
-              >
-                <span className="truncate">{activeProject?.name || 'Select project'}</span>
-                <span className="text-gray-400 ml-1">▼</span>
-              </button>
-              {showProjectMenu && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border rounded-md shadow-lg z-20 max-h-48 overflow-y-auto">
-                  {projects.map(p => (
-                    <button
-                      key={p.path}
-                      onClick={() => {
-                        setActiveProject(p)
-                        setShowProjectMenu(false)
-                        window.electronAPI.config.set('lastProjectId', p.path)
-                      }}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 truncate ${
-                        activeProject?.path === p.path
-                          ? 'bg-gray-50 text-terracotta'
-                          : 'text-gray-700'
-                      }`}
-                    >
-                      {p.name}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => {
-                      setShowProjectMenu(false)
-                      handleAddProject()
-                    }}
-                    className="w-full text-left px-3 py-2 text-sm text-cloudy hover:bg-gray-50 border-t border-gray-100"
-                  >
-                    + Add Project
-                  </button>
-                </div>
-              )}
-            </div>
+          <div className="flex items-center justify-between px-4 py-2">
+            <span className="text-sm font-medium text-text-secondary">项目</span>
+            <button
+              onClick={handleAddProject}
+              className="p-1 rounded-md text-text-secondary hover:text-text-primary hover:bg-black/5 transition-colors"
+            >
+              <FolderPlus size={16} />
+            </button>
           </div>
 
-          {/* Session search */}
-          {sessions.length > 5 && (
-            <div className="px-3 pb-2">
-              <input
-                type="text"
-                placeholder="Search sessions..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs rounded-md border border-border focus:outline-none focus:border-terracotta"
+          <div className="flex-1 overflow-y-auto">
+            {projects.map((project) => (
+              <ProjectItem
+                key={project.path}
+                project={project}
+                sessions={sessionsByProject[project.path] || []}
+                isCollapsed={!!collapsedProjects[project.path]}
+                onToggleCollapse={() => toggleProjectCollapsed(project.path)}
+                activeSessionId={activeSessionId}
+                onSelectSession={(id) => handleSelectSession(id, project.path)}
+                onDeleteSession={handleDeleteSession}
               />
-            </div>
-          )}
-
-          {/* Session list */}
-          <div className="flex-1 overflow-y-auto px-3">
-            {filteredSessions.length === 0 ? (
-              <p className="text-xs text-cloudy px-2 py-4">No sessions yet</p>
-            ) : (
-              <div className="space-y-0.5">
-                {filteredSessions.map(session => (
-                  <button
-                    key={session.id}
-                    onClick={() => handleSelectSession(session.id)}
-                    onContextMenu={e => {
-                      e.preventDefault()
-                      handleDeleteSession(session.id)
-                    }}
-                    className={`w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors group ${
-                      activeSessionId === session.id
-                        ? 'bg-terracotta/10 text-terracotta'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="truncate font-medium text-xs">{session.title}</div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-cloudy">{session.messageCount} msgs</span>
-                      {session.lastActive && (
-                        <span className="text-[10px] text-cloudy">
-                          {formatRelativeTime(session.lastActive)}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+            ))}
           </div>
 
-          {/* Bottom controls */}
           {updateInfo && (
             <div className="border-t border-border p-3 shrink-0">
               <button
@@ -267,9 +421,18 @@ export default function Sidebar() {
               </button>
             </div>
           )}
+
+          <div className="border-t border-border px-3 py-2 shrink-0">
+            <button
+              onClick={toggleSettings}
+              className="flex items-center gap-2 w-full px-2 py-2 rounded-md text-sm text-text-secondary hover:bg-black/5 hover:text-text-primary transition-colors"
+            >
+              <Settings size={16} />
+              <span>设置</span>
+            </button>
+          </div>
         </aside>
 
-        {/* Drag handle */}
         {!sidebarCollapsed && (
           <div
             className="absolute top-0 right-0 w-1 h-full cursor-col-resize group z-10 flex items-center justify-center"
@@ -284,20 +447,4 @@ export default function Sidebar() {
       </div>
     </>
   )
-}
-
-function formatRelativeTime(iso: string): string {
-  try {
-    const diff = Date.now() - new Date(iso).getTime()
-    const mins = Math.floor(diff / 60000)
-    if (mins < 1) return 'just now'
-    if (mins < 60) return `${mins}m ago`
-    const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours}h ago`
-    const days = Math.floor(hours / 24)
-    if (days < 7) return `${days}d ago`
-    return new Date(iso).toLocaleDateString()
-  } catch {
-    return ''
-  }
 }

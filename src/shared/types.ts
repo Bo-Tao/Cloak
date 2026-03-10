@@ -91,4 +91,7 @@ export const IPC = {
   APP_UPDATE_DOWNLOADED: 'app:update-downloaded',
   APP_CHECK_UPDATE: 'app:check-update',
   APP_INSTALL_UPDATE: 'app:install-update',
+  PROJECT_REMOVE: 'project:remove',
+  PROJECT_RENAME: 'project:rename',
+  SHELL_OPEN_PATH: 'shell:open-path',
 } as const
