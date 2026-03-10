@@ -40,7 +40,7 @@ export default function Tooltip({ label, shortcut, children }: TooltipProps) {
       {visible &&
         createPortal(
           <div
-            className="fixed px-2.5 py-1.5 bg-white rounded-lg shadow-lg border border-gray-200 flex items-center gap-2 whitespace-nowrap z-50 pointer-events-none -translate-x-1/2"
+            className="fixed px-2.5 py-1.5 bg-pampas rounded-lg shadow-lg border border-[#F0EEE6] flex items-center gap-2 whitespace-nowrap z-50 pointer-events-none -translate-x-1/2"
             style={{ top: pos.top, left: pos.left }}
           >
             <span className="text-xs text-gray-600">{label}</span>
