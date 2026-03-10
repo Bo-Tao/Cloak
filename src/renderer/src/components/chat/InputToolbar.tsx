@@ -1,7 +1,7 @@
+import { ArrowUp, Plus, Square } from 'lucide-react'
 import { useState } from 'react'
-import { Plus, ArrowUp, Square, ChevronDown } from 'lucide-react'
 import { Button } from '../ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
 
 const MODELS = [
   { id: 'custom', label: '自定义' },
@@ -25,72 +25,58 @@ interface InputToolbarProps {
 }
 
 export default function InputToolbar({ isStreaming, canSend, onSend, onStop }: InputToolbarProps) {
-  const [selectedModel, setSelectedModel] = useState(MODELS[0])
-  const [selectedReasoning, setSelectedReasoning] = useState(REASONING_LEVELS[0])
-  const [modelOpen, setModelOpen] = useState(false)
-  const [reasoningOpen, setReasoningOpen] = useState(false)
+  const [selectedModel, setSelectedModel] = useState(MODELS[0].id)
+  const [selectedReasoning, setSelectedReasoning] = useState(REASONING_LEVELS[0].id)
 
   return (
     <div className="flex items-center justify-between px-3 pb-3">
       {/* Left: action buttons */}
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon-sm" className="text-text-secondary hover:text-text-primary">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="text-text-secondary hover:text-text-primary"
+        >
           <Plus className="size-4" />
         </Button>
 
-        <Popover open={modelOpen} onOpenChange={setModelOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-text-secondary hover:text-text-primary gap-1 text-sm font-normal">
-              {selectedModel.label}
-              <ChevronDown className="size-3" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-44 p-1" align="start">
-            {MODELS.map((model) => (
-              <button
-                key={model.id}
-                onClick={() => {
-                  setSelectedModel(model)
-                  setModelOpen(false)
-                }}
-                className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors ${
-                  selectedModel.id === model.id
-                    ? 'bg-accent text-accent-foreground'
-                    : 'hover:bg-accent/50'
-                }`}
-              >
-                {model.label}
-              </button>
-            ))}
-          </PopoverContent>
-        </Popover>
+        <Select value={selectedModel} onValueChange={setSelectedModel}>
+          <SelectTrigger
+            className="h-auto border-none bg-transparent shadow-none px-2 py-1 text-sm font-normal text-text-secondar
+         -y cursor-pointer gap-1 focus:ring-0 hover:bg-gray-100"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent position="popper" sideOffset={4}>
+            <SelectGroup>
+              <SelectLabel className="text-text-secondary/60">请选择模型</SelectLabel>
+              {MODELS.map(model => (
+                <SelectItem key={model.id} value={model.id}>
+                  {model.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
-        <Popover open={reasoningOpen} onOpenChange={setReasoningOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-text-secondary hover:text-text-primary gap-1 text-sm font-normal">
-              {selectedReasoning.label}
-              <ChevronDown className="size-3" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-32 p-1" align="start">
-            {REASONING_LEVELS.map((level) => (
-              <button
-                key={level.id}
-                onClick={() => {
-                  setSelectedReasoning(level)
-                  setReasoningOpen(false)
-                }}
-                className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors ${
-                  selectedReasoning.id === level.id
-                    ? 'bg-accent text-accent-foreground'
-                    : 'hover:bg-accent/50'
-                }`}
-              >
-                {level.label}
-              </button>
-            ))}
-          </PopoverContent>
-        </Popover>
+        <Select value={selectedReasoning} onValueChange={setSelectedReasoning}>
+          <SelectTrigger
+            className="h-auto border-none bg-transparent shadow-none px-2 py-1 text-sm font-normal text-text-secondar
+         -y cursor-pointer gap-1 focus:ring-0 hover:bg-gray-100"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent position="popper" sideOffset={4}>
+            <SelectGroup>
+              <SelectLabel className="text-text-secondary/60">请选择推理模式</SelectLabel>
+              {REASONING_LEVELS.map(level => (
+                <SelectItem key={level.id} value={level.id}>
+                  {level.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Right: send/stop button */}
