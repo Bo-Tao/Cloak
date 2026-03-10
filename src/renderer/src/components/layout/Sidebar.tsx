@@ -372,7 +372,7 @@ export default function Sidebar() {
         style={{ width: sidebarCollapsed ? 0 : sidebarWidth }}
       >
         <aside
-          className="flex flex-col bg-surface rounded-xl overflow-hidden pt-12"
+          className="flex flex-col bg-surface rounded-xl overflow-hidden pt-8 shadow-sm"
           style={{
             width: sidebarWidth - 8,
             height: 'calc(100% - 16px)',

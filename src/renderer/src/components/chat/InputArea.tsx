@@ -75,7 +75,7 @@ export default function InputArea() {
   )
 
   return (
-    <div className="bg-surface px-4 pb-4">
+    <div className="bg-pampas px-4 pb-4">
       {/* Auto-accept warning banner */}
       {autoAccept && (
         <div className="px-4 py-2 mb-2 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between">
@@ -96,7 +96,7 @@ export default function InputArea() {
         <textarea
           ref={textareaRef}
           value={text}
-          onChange={(e) => {
+          onChange={e => {
             setText(e.target.value)
             adjustHeight()
           }}
