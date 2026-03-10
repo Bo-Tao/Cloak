@@ -12,7 +12,7 @@ export default function UserMessage({ message }: Props) {
 
   return (
     <div className="flex justify-end px-4 py-2">
-      <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-terracotta text-white px-4 py-3">
+      <div className="max-w-[80%] rounded-xl bg-[#F0EEE6] text-gray-900 px-4 py-3">
         <p className="text-sm whitespace-pre-wrap">{textContent}</p>
       </div>
     </div>

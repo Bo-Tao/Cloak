@@ -55,7 +55,7 @@ function SessionItem({
         e.preventDefault()
         onDelete()
       }}
-      className={`w-full text-left pl-8 pr-4 py-1.5 text-sm transition-colors flex items-center justify-between ${
+      className={`text-left pl-8 pr-4 py-1.5 text-sm transition-colors flex items-center justify-between mx-2 rounded-lg ${
         isActive
           ? 'text-terracotta'
           : 'text-text-secondary hover:bg-black/5 dark:hover:bg-white/5'
@@ -140,7 +140,7 @@ function ProjectItem({
   return (
     <div className="relative">
       <div
-        className={`flex items-center gap-2 px-4 py-1.5 cursor-pointer select-none transition-colors ${
+        className={`flex items-center gap-2 px-4 py-1.5 cursor-pointer select-none transition-colors mx-2 rounded-lg ${
           isHovered ? 'bg-black/5 dark:bg-white/5' : ''
         }`}
         onMouseEnter={() => setIsHovered(true)}
@@ -164,8 +164,8 @@ function ProjectItem({
         ) : (
           <span className="flex-1 text-sm truncate">{project.name}</span>
         )}
-        {isHovered && !isRenaming && (
-          <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+        {!isRenaming && (
+          <div className={`flex items-center gap-0.5 shrink-0 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 text-text-secondary"
