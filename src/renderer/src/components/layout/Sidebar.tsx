@@ -136,15 +136,15 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`shrink-0 h-full overflow-hidden relative ${isResizing ? '' : 'transition-[width] duration-200'}`}
+      className={`shrink-0 h-full overflow-hidden relative ${isResizing ? '' : 'transition-[width] duration-2000'}`}
       style={{ width: sidebarCollapsed ? 0 : sidebarWidth }}
     >
     <aside
-      className="flex flex-col bg-surface rounded-xl overflow-hidden"
+      className="flex flex-col bg-surface rounded-xl overflow-hidden pt-10"
       style={{ width: sidebarWidth - 8, height: 'calc(100% - 16px)', margin: 8, marginRight: 0 }}
     >
       {/* Drag region for title bar */}
-      <div className="h-10 flex items-center pl-24 px-3 shrink-0 drag-region">
+      <div className="h-10 fixed top-2 left-2 flex items-center pl-24 px-3 shrink-0 drag-region">
         <button
           onClick={toggleSidebar}
           className="no-drag p-1.5 text-text-secondary hover:text-text-primary transition-colors rounded-md hover:bg-black/5"
