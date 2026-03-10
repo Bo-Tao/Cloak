@@ -71,9 +71,9 @@ export function registerIpcHandlers(claudeService: ClaudeService, updateService?
     return listSessions(projectPath)
   })
 
-  ipcMain.handle(IPC.SESSION_LOAD, async (_e, sessionId: string) => {
+  ipcMain.handle(IPC.SESSION_LOAD, async (_e, sessionId: string, projectPath: string) => {
     const store = await getStore()
-    const projectPath = store.get('lastProjectId') || process.cwd()
+    store.set('lastProjectId', projectPath)
     return loadSession(projectPath, sessionId)
   })
 

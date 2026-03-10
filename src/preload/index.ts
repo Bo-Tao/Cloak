@@ -24,8 +24,8 @@ const api = {
   session: {
     list: (projectPath: string) =>
       ipcRenderer.invoke(IPC.SESSION_LIST, projectPath),
-    load: (sessionId: string) =>
-      ipcRenderer.invoke(IPC.SESSION_LOAD, sessionId),
+    load: (sessionId: string, projectPath: string) =>
+      ipcRenderer.invoke(IPC.SESSION_LOAD, sessionId, projectPath),
     create: (projectPath: string) =>
       ipcRenderer.invoke(IPC.SESSION_CREATE, projectPath),
     delete: (sessionId: string) =>

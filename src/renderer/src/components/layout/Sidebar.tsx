@@ -284,7 +284,7 @@ export default function Sidebar() {
       }
       setActive(sessionId)
       clearMessages()
-      const messages = await window.electronAPI.session.load(sessionId)
+      const messages = await window.electronAPI.session.load(sessionId, projectPath)
       if (Array.isArray(messages)) {
         for (const msg of messages) {
           useChatStore.getState().appendMessage(msg as ChatMessage)

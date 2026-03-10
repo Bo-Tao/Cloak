@@ -8,7 +8,7 @@ interface ElectronAPI {
   }
   session: {
     list: (projectPath: string) => Promise<unknown[]>
-    load: (sessionId: string) => Promise<unknown>
+    load: (sessionId: string, projectPath: string) => Promise<unknown>
     create: (projectPath: string) => Promise<string>
     delete: (sessionId: string) => Promise<void>
   }
