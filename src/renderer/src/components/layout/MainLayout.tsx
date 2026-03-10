@@ -20,12 +20,16 @@ export default function MainLayout() {
     return () => window.removeEventListener('resize', handleResize)
   }, [setSidebarCollapsed])
 
-  // Cmd+, to open settings
+  // Cmd+, to open settings, Cmd+B to toggle sidebar
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === ',') {
         e.preventDefault()
         setSettingsOpen((prev) => !prev)
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault()
+        useSettingsStore.getState().toggleSidebar()
       }
     }
     document.addEventListener('keydown', handler)
