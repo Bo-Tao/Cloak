@@ -2,6 +2,7 @@ import { useRef, useCallback, useState } from 'react'
 import { useChatStore } from '../../stores/chat-store'
 import { useSessionStore } from '../../stores/session-store'
 import { useSettingsStore } from '../../stores/settings-store'
+import InputToolbar from './InputToolbar'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,10 +75,10 @@ export default function InputArea() {
   )
 
   return (
-    <div className="border-t border-border bg-surface">
+    <div className="bg-surface px-4 pb-4">
       {/* Auto-accept warning banner */}
       {autoAccept && (
-        <div className="px-4 py-2 bg-yellow-50 border-b border-yellow-200 flex items-center justify-between">
+        <div className="px-4 py-2 mb-2 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between">
           <p className="text-xs text-yellow-700">
             Auto-accept mode enabled — Claude will execute all operations automatically
           </p>
@@ -90,39 +91,28 @@ export default function InputArea() {
         </div>
       )}
 
-      <div className="p-4">
-        <div className="flex items-end gap-2 max-w-3xl mx-auto">
-          <textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => {
-              setText(e.target.value)
-              adjustHeight()
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder="Send a message..."
-            aria-label="Message input"
-            className="flex-1 resize-none rounded-lg border border-border px-4 py-3 text-sm focus:outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 transition-colors"
-            rows={2}
-            disabled={isStreaming || !!pendingPermission}
-          />
-          {isStreaming ? (
-            <button
-              onClick={handleStop}
-              className="shrink-0 px-4 py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
-            >
-              Stop
-            </button>
-          ) : (
-            <button
-              onClick={handleSend}
-              disabled={!text.trim() || !!pendingPermission}
-              className="shrink-0 px-4 py-3 rounded-lg bg-terracotta hover:bg-terracotta-dark text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Send
-            </button>
-          )}
-        </div>
+      {/* Card container */}
+      <div className="max-w-3xl mx-auto rounded-2xl border border-border bg-white shadow-sm">
+        <textarea
+          ref={textareaRef}
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value)
+            adjustHeight()
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder="Send a message..."
+          aria-label="Message input"
+          className="w-full resize-none bg-transparent px-4 pt-3 pb-1 text-sm placeholder:text-text-secondary/60 focus:outline-none"
+          rows={2}
+          disabled={isStreaming || !!pendingPermission}
+        />
+        <InputToolbar
+          isStreaming={isStreaming}
+          canSend={!!text.trim() && !pendingPermission}
+          onSend={handleSend}
+          onStop={handleStop}
+        />
       </div>
 
       {/* First-time auto-accept confirmation dialog */}
